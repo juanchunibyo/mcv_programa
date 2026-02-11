@@ -26,7 +26,7 @@ $breadcrumb = [
     ['label' => 'Títulos de Programa'],
 ];
 
-include __DIR__ . '/../../layout/header.php';
+include __DIR__ . '/../layout/header.php';
 ?>
 
         <!-- Page Header -->
@@ -171,4 +171,4 @@ endif; ?>
 <?php
 endif; ?>
 
-<?php include __DIR__ . '/../../layout/footer.php'; ?>
+<?php include __DIR__ . '/../layout/footer.php'; ?>

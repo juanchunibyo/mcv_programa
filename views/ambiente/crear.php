@@ -23,7 +23,7 @@ $breadcrumb = [
     ['label' => 'Registrar'],
 ];
 
-include __DIR__ . '/../../layout/header.php';
+include __DIR__ . '/../layout/header.php';
 ?>
 
         <div class="page-header">
@@ -95,4 +95,4 @@ endforeach; ?>
             </div>
         </div>
 
-<?php include __DIR__ . '/../../layout/footer.php'; ?>
+<?php include __DIR__ . '/../layout/footer.php'; ?>

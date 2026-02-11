@@ -18,7 +18,7 @@ $breadcrumb = [
     ['label' => 'Detalles de Asignación'],
 ];
 
-include __DIR__ . '/../../layout/header.php';
+include __DIR__ . '/../layout/header.php';
 ?>
 
         <div class="page-header">
@@ -153,4 +153,4 @@ endif; ?>
 <?php
 endif; ?>
 
-<?php include __DIR__ . '/../../layout/footer.php'; ?>
+<?php include __DIR__ . '/../layout/footer.php'; ?>
