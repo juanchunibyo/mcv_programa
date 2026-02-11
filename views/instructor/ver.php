@@ -20,9 +20,19 @@ include __DIR__ . '/../layout/header.php';
 
         <div class="page-header">
             <h1 class="page-title">Detalle de Instructor</h1>
+            <?php if ($rol === 'coordinador'): ?>
+                <a href="editar.php?id=<?php echo $instructor['inst_id']; ?>" class="btn btn-primary">
+                    <i data-lucide="pencil-line"></i>
+                    Editar Instructor
+                </a>
+            <?php endif; ?>
         </div>
 
         <div class="detail-card">
+            <div class="sena-card-header">
+                <i data-lucide="user" style="width: 20px; height: 20px; display: inline-block; vertical-align: middle; margin-right: 8px;"></i>
+                Información del Instructor
+            </div>
             <div class="detail-card-body">
                 <div class="detail-row">
                     <div class="detail-label">ID</div>
@@ -50,6 +60,12 @@ include __DIR__ . '/../layout/header.php';
                     <i data-lucide="arrow-left"></i>
                     Volver al Listado
                 </a>
+                <?php if ($rol === 'coordinador'): ?>
+                    <a href="editar.php?id=<?php echo $instructor['inst_id']; ?>" class="btn btn-primary">
+                        <i data-lucide="pencil-line"></i>
+                        Editar
+                    </a>
+                <?php endif; ?>
             </div>
         </div>
 
