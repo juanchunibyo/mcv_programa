@@ -12,7 +12,35 @@ $breadcrumb = [
 include __DIR__ . '/views/layout/header.php';
 ?>
 
+<!-- Fondo decorativo -->
+<div class="dashboard-background"></div>
+
 <style>
+    /* Fondo con imagen */
+    .main-content {
+        position: relative;
+    }
+
+    .dashboard-background {
+        position: fixed;
+        top: 0;
+        left: 280px;
+        right: 0;
+        bottom: 0;
+        background-image: url('/mvccc/mvc_programa/assets/images/dashboard-bg.jpg');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        opacity: 0.15;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    .main-content > * {
+        position: relative;
+        z-index: 1;
+    }
+
     .dashboard-welcome {
         background: rgba(15, 23, 42, 0.6);
         backdrop-filter: blur(20px);
@@ -153,6 +181,17 @@ include __DIR__ . '/views/layout/header.php';
         font-size: 16px;
         font-weight: 700;
         color: #ffffff;
+    }
+
+    /* Modo oscuro - ajuste de opacidad */
+    [data-theme="dark"] .dashboard-background {
+        opacity: 0.08;
+    }
+
+    @media (max-width: 1024px) {
+        .dashboard-background {
+            left: 0;
+        }
     }
 </style>
 
