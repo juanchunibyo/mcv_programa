@@ -36,12 +36,17 @@ $rol = $rol ?? 'instructor';
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <div class="sidebar-logo">
-                <div class="sidebar-logo-icon">S</div>
+                <img src="https://bogota.gov.co/sites/default/files/inline-images/logosena.png" alt="Logo SENA" style="width: 50px; height: 50px; object-fit: contain;">
                 <div>
                     <div class="sidebar-logo-text">SENA</div>
                     <div class="sidebar-logo-subtitle">Sistema Académico</div>
                 </div>
             </div>
+            <!-- Botón de modo oscuro -->
+            <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema" title="Cambiar a modo oscuro">
+                <i data-lucide="moon" class="theme-icon-dark"></i>
+                <i data-lucide="sun" class="theme-icon-light"></i>
+            </button>
         </div>
 
         <nav class="sidebar-nav">
@@ -96,15 +101,15 @@ $rol = $rol ?? 'instructor';
 
         <div class="sidebar-footer">
             <div class="sidebar-user">
-                <div class="sidebar-user-avatar">
-                    <?php echo strtoupper(substr($rol, 0, 1)); ?>
+                <div class="sidebar-user-avatar" style="background: none; padding: 0;">
+                    <img src="https://ui-avatars.com/api/?name=Juan+Diego+Rubio&background=39A900&color=fff&size=128" alt="Juan Diego Rubio" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
                 </div>
                 <div class="sidebar-user-info">
                     <div class="sidebar-user-name">
-                        <?php echo($rol === 'coordinador') ? 'Coordinador Académico' : 'Instructor'; ?>
+                        Juan Diego Rubio
                     </div>
                     <div class="sidebar-user-role">
-                        <?php echo ucfirst($rol); ?>
+                        <?php echo($rol === 'coordinador') ? 'Coordinador Académico' : 'Instructor'; ?>
                     </div>
                 </div>
             </div>
