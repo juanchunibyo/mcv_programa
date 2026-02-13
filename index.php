@@ -13,43 +13,19 @@ include __DIR__ . '/views/layout/header.php';
 ?>
 
 <!-- Fondo decorativo -->
-<div class="dashboard-background"></div>
+<!-- El fondo ahora está en el body global -->
 
 <style>
-    /* Fondo con imagen */
-    .main-content {
-        position: relative;
-    }
-
-    .dashboard-background {
-        position: fixed;
-        top: 0;
-        left: 280px;
-        right: 0;
-        bottom: 0;
-        background-image: url('/mvccc/mvc_programa/assets/images/dashboard-bg.jpg');
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        opacity: 0.15;
-        z-index: 0;
-        pointer-events: none;
-    }
-
-    .main-content > * {
-        position: relative;
-        z-index: 1;
-    }
-
+    /* Estilos del dashboard */
     .dashboard-welcome {
-        background: rgba(15, 23, 42, 0.6);
+        background: rgba(15, 90, 45, 0.95);
         backdrop-filter: blur(20px);
-        border: 1px solid rgba(57, 169, 0, 0.3);
+        border: 1px solid rgba(15, 90, 45, 1);
         border-radius: 20px;
         padding: 48px 40px;
         color: white;
         margin-bottom: 40px;
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        box-shadow: 0 12px 40px rgba(15, 90, 45, 0.5);
     }
 
     .dashboard-welcome h2 {
@@ -71,19 +47,20 @@ include __DIR__ . '/views/layout/header.php';
     }
 
     .stat-card {
-        background: rgba(15, 23, 42, 0.6);
+        background: rgba(15, 90, 45, 0.95);
         backdrop-filter: blur(20px);
-        border: 1px solid rgba(57, 169, 0, 0.2);
+        border: 1px solid rgba(15, 90, 45, 1);
         border-radius: 16px;
         padding: 28px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 8px 32px rgba(15, 90, 45, 0.4);
         transition: all 0.4s;
     }
 
     .stat-card:hover {
         transform: translateY(-8px);
-        box-shadow: 0 16px 48px rgba(57, 169, 0, 0.3);
-        border-color: rgba(57, 169, 0, 0.4);
+        background: rgba(20, 110, 55, 1);
+        box-shadow: 0 16px 48px rgba(23, 135, 70, 0.6);
+        border-color: rgba(23, 135, 70, 1);
     }
 
     .stat-card-icon {
@@ -140,9 +117,9 @@ include __DIR__ . '/views/layout/header.php';
     }
 
     .action-card {
-        background: rgba(15, 23, 42, 0.6);
+        background: rgba(15, 90, 45, 0.95);
         backdrop-filter: blur(20px);
-        border: 2px solid rgba(57, 169, 0, 0.2);
+        border: 2px solid rgba(15, 90, 45, 1);
         border-radius: 16px;
         padding: 28px 24px;
         text-align: center;
@@ -154,9 +131,10 @@ include __DIR__ . '/views/layout/header.php';
     }
 
     .action-card:hover {
-        border-color: var(--green-primary);
+        background: rgba(20, 110, 55, 1);
+        border-color: rgb(23, 135, 70);
         transform: translateY(-6px);
-        box-shadow: 0 12px 40px rgba(57, 169, 0, 0.3);
+        box-shadow: 0 12px 40px rgba(23, 135, 70, 0.6);
     }
 
     .action-card-icon {
@@ -237,6 +215,13 @@ include __DIR__ . '/views/layout/header.php';
 <div class="quick-actions">
     <h3 class="section-title">Accesos Rápidos</h3>
     <div class="actions-grid">
+        <a href="/mvccc/mvc_programa/views/calendario/index.php" class="action-card">
+            <div class="action-card-icon">
+                <i data-lucide="calendar" style="width: 28px; height: 28px;"></i>
+            </div>
+            <div class="action-card-title">Calendario</div>
+        </a>
+
         <a href="/mvccc/mvc_programa/views/instructor/index.php" class="action-card">
             <div class="action-card-icon">
                 <i data-lucide="users" style="width: 28px; height: 28px;"></i>
@@ -268,7 +253,7 @@ include __DIR__ . '/views/layout/header.php';
         <a href="/mvccc/mvc_programa/views/ambiente/index.php" class="action-card">
             <div class="action-card-icon">
                 <i data-lucide="monitor" style="width: 28px; height: 28px;"></i>
-            </div>
+            </div>  
             <div class="action-card-title">Ambientes</div>
         </a>
 

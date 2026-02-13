@@ -18,8 +18,13 @@ $rol = $rol ?? 'instructor';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($title); ?> — SENA</title>
-    <link rel="stylesheet" href="/mvccc/mvc_programa/assets/css/styles.css">
+    <link rel="stylesheet" href="/mvccc/mvc_programa/assets/css/styles.css?v=17">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script>
+        // FORZAR MODO CLARO - Eliminar tema oscuro
+        localStorage.removeItem('theme');
+        document.documentElement.removeAttribute('data-theme');
+    </script>
 </head>
 <body>
 
@@ -42,11 +47,6 @@ $rol = $rol ?? 'instructor';
                     <div class="sidebar-logo-subtitle">Sistema Académico</div>
                 </div>
             </div>
-            <!-- Botón de modo oscuro -->
-            <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema" title="Cambiar a modo oscuro">
-                <i data-lucide="moon" class="theme-icon-dark"></i>
-                <i data-lucide="sun" class="theme-icon-light"></i>
-            </button>
         </div>
 
         <nav class="sidebar-nav">
@@ -54,6 +54,10 @@ $rol = $rol ?? 'instructor';
             <a href="/mvccc/mvc_programa/" class="sidebar-link">
                 <i data-lucide="layout-dashboard"></i>
                 Inicio
+            </a>
+            <a href="/mvccc/mvc_programa/views/calendario/index.php" class="sidebar-link <?php echo(strpos($_SERVER['REQUEST_URI'] ?? '', '/calendario/') !== false) ? 'active' : ''; ?>">
+                <i data-lucide="calendar"></i>
+                Calendario
             </a>
 
             <div class="sidebar-section-title">Módulos</div>
