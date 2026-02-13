@@ -3,8 +3,6 @@
  * Vista: Calendario de Programación Académica
  */
 
-require_once __DIR__ . '/../../controllers/CalendarioController.php';
-
 $rol = $rol ?? 'coordinador';
 $title = 'Calendario de Programación';
 $breadcrumb = [
@@ -16,22 +14,86 @@ $breadcrumb = [
 $mesActual = date('n'); // 1-12
 $anioActual = date('Y');
 
-// Obtener asignaciones del mes
-$asignaciones = CalendarioController::getAsignacionesCalendario($mesActual, $anioActual);
+// Datos de prueba para el calendario
+$asignaciones = [
+    '2026-02-15' => [
+        [
+            'asig_id' => 1,
+            'instructor' => 'Juan Pérez',
+            'ficha' => '2758392',
+            'ambiente' => 'Lab 101',
+            'competencia' => 'Programación',
+            'hora_ini' => '08:00:00',
+            'hora_fin' => '12:00:00',
+            'detalle_id' => 1
+        ]
+    ],
+    '2026-02-20' => [
+        [
+            'asig_id' => 2,
+            'instructor' => 'María García',
+            'ficha' => '2758393',
+            'ambiente' => 'Aula 202',
+            'competencia' => 'Bases de Datos',
+            'hora_ini' => '14:00:00',
+            'hora_fin' => '18:00:00',
+            'detalle_id' => 2
+        ]
+    ]
+];
 
-// Obtener datos para filtros
-$filtros = CalendarioController::getFiltrosData();
+// Datos de prueba para filtros
+$filtros = [
+    'sedes' => [
+        ['sede_id' => 1, 'sede_nombre' => 'Sede Centro'],
+        ['sede_id' => 2, 'sede_nombre' => 'Sede Norte']
+    ],
+    'fichas' => [
+        ['fich_id' => '2758392'],
+        ['fich_id' => '2758393']
+    ],
+    'instructores' => [
+        ['inst_id' => 1, 'inst_nombres' => 'Juan', 'inst_apellidos' => 'Pérez'],
+        ['inst_id' => 2, 'inst_nombres' => 'María', 'inst_apellidos' => 'García']
+    ]
+];
+
+// Datos de prueba para el formulario
+$fichas = [
+    ['fich_id' => '2758392'],
+    ['fich_id' => '2758393'],
+    ['fich_id' => '2758394']
+];
+
+$instructores = [
+    ['inst_id' => 1, 'inst_nombres' => 'Juan', 'inst_apellidos' => 'Pérez'],
+    ['inst_id' => 2, 'inst_nombres' => 'María', 'inst_apellidos' => 'García'],
+    ['inst_id' => 3, 'inst_nombres' => 'Carlos', 'inst_apellidos' => 'López']
+];
+
+$ambientes = [
+    ['amb_id' => 1, 'amb_nombre' => 'Laboratorio 101'],
+    ['amb_id' => 2, 'amb_nombre' => 'Aula 202'],
+    ['amb_id' => 3, 'amb_nombre' => 'Sala 303']
+];
+
+$competencias = [
+    ['comp_id' => 1, 'comp_nombre_corto' => 'Programación'],
+    ['comp_id' => 2, 'comp_nombre_corto' => 'Bases de Datos'],
+    ['comp_id' => 3, 'comp_nombre_corto' => 'Redes']
+];
 
 include __DIR__ . '/../layout/header.php';
 ?>
 
 <style>
     .calendar-container {
-        background: rgba(15, 90, 45, 0.95);
-        border: 1px solid rgba(15, 90, 45, 1);
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(0, 0, 0, 0.1);
         border-radius: 16px;
         padding: 24px;
-        box-shadow: 0 8px 32px rgba(15, 90, 45, 0.4);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
     }
 
     .calendar-header {
@@ -50,30 +112,54 @@ include __DIR__ . '/../layout/header.php';
     }
 
     .calendar-nav button {
-        width: 40px;
-        height: 40px;
+        padding: 8px 16px;
         border-radius: 8px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        background: rgba(255, 255, 255, 0.1);
-        color: white;
+        border: 1px solid rgba(0, 0, 0, 0.15);
+        background: white;
+        color: #2d3748;
         cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        font-weight: 600;
         transition: all 0.3s;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     }
 
     .calendar-nav button:hover {
-        background: rgba(255, 255, 255, 0.2);
-        border-color: rgba(255, 255, 255, 0.4);
+        background: rgba(57, 169, 0, 0.1);
+        border-color: var(--green-primary);
+        color: var(--green-secondary);
+        box-shadow: 0 4px 8px rgba(57, 169, 0, 0.2);
     }
 
     .calendar-month {
-        font-size: 24px;
+        font-size: 20px;
         font-weight: 700;
-        color: white;
-        min-width: 200px;
-        text-align: center;
+        color: #1a1a1a;
+    }
+
+    .view-buttons {
+        display: flex;
+        gap: 8px;
+        background: rgba(0, 0, 0, 0.05);
+        padding: 4px;
+        border-radius: 8px;
+    }
+
+    .view-btn {
+        padding: 6px 12px;
+        border: none;
+        background: transparent;
+        color: #4a5568;
+        cursor: pointer;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 13px;
+        transition: all 0.2s;
+    }
+
+    .view-btn.active {
+        background: white;
+        color: var(--green-primary);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .calendar-filters {
@@ -85,66 +171,191 @@ include __DIR__ . '/../layout/header.php';
     .filter-select {
         padding: 8px 16px;
         border-radius: 8px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        background: rgba(255, 255, 255, 0.1);
-        color: white;
+        border: 1px solid rgba(0, 0, 0, 0.15);
+        background: white;
+        color: #2d3748;
         font-size: 14px;
+        font-weight: 500;
         cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        transition: all 0.2s;
     }
 
-    .filter-select option {
-        background: #1a5a2e;
+    .filter-select:hover {
+        border-color: var(--green-primary);
+        box-shadow: 0 4px 8px rgba(57, 169, 0, 0.15);
+    }
+
+    .filter-select:focus {
+        outline: none;
+        border-color: var(--green-primary);
+        box-shadow: 0 0 0 3px rgba(57, 169, 0, 0.1);
+    }
+
+    /* Vista Semanal */
+    .week-view {
+        display: grid;
+        grid-template-columns: 80px repeat(7, 1fr);
+        gap: 1px;
+        background: rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .time-slot,
+    .day-header,
+    .event-cell {
+        background: white;
+        padding: 12px;
+    }
+
+    .time-slot {
+        font-size: 12px;
+        color: #666;
+        text-align: right;
+        padding-right: 16px;
+        font-weight: 500;
+    }
+
+    .day-header {
+        text-align: center;
+        font-weight: 600;
+        color: #1a1a1a;
+        padding: 16px 12px;
+        border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .day-header.today {
+        background: rgba(57, 169, 0, 0.1);
+        color: var(--green-primary);
+    }
+
+    .day-date {
+        font-size: 11px;
+        color: #666;
+        font-weight: 400;
+        margin-top: 4px;
+    }
+
+    .event-cell {
+        min-height: 60px;
+        position: relative;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .event-cell:hover {
+        background: rgba(57, 169, 0, 0.05);
+    }
+
+    .event-block {
+        background: #3b82f6;
         color: white;
+        padding: 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        margin: 2px 0;
+        cursor: pointer;
+        transition: all 0.2s;
     }
 
+    .event-block:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .event-block.ficha {
+        background: #3b82f6;
+    }
+
+    .event-block.ambiente {
+        background: #f59e0b;
+    }
+
+    .event-block.instructor {
+        background: #8b5cf6;
+    }
+
+    .event-time {
+        font-size: 10px;
+        opacity: 0.9;
+        font-weight: 600;
+    }
+
+    .event-title {
+        font-weight: 500;
+        margin-top: 2px;
+    }
+
+    .legend {
+        display: flex;
+        gap: 24px;
+        margin-top: 20px;
+        padding: 16px;
+        background: rgba(0, 0, 0, 0.02);
+        border-radius: 8px;
+        flex-wrap: wrap;
+    }
+
+    /* Estilos para el calendario mensual */
     .calendar-grid {
         display: grid;
         grid-template-columns: repeat(7, 1fr);
-        gap: 8px;
+        gap: 1px;
+        background: rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        overflow: hidden;
         margin-top: 20px;
     }
 
     .calendar-day-header {
+        background: var(--green-secondary);
+        color: white;
         text-align: center;
-        padding: 12px;
-        font-weight: 600;
-        color: rgba(255, 255, 255, 0.9);
+        padding: 16px 12px;
+        font-weight: 700;
         font-size: 13px;
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
 
     .calendar-day {
+        background: white;
         min-height: 120px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 8px;
-        padding: 8px;
+        padding: 12px;
         cursor: pointer;
-        transition: all 0.3s;
+        transition: all 0.2s;
         position: relative;
     }
 
     .calendar-day:hover {
-        background: rgba(255, 255, 255, 0.1);
-        border-color: rgba(255, 255, 255, 0.3);
-        transform: translateY(-2px);
+        background: rgba(57, 169, 0, 0.05);
+        transform: scale(1.02);
+        z-index: 10;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
     .calendar-day.other-month {
-        opacity: 0.3;
+        background: rgba(0, 0, 0, 0.02);
+        opacity: 0.5;
     }
 
     .calendar-day.today {
+        background: rgba(57, 169, 0, 0.1);
         border: 2px solid var(--green-primary);
-        background: rgba(57, 169, 0, 0.15);
     }
 
     .day-number {
-        font-weight: 600;
-        color: white;
-        font-size: 14px;
+        font-size: 16px;
+        font-weight: 700;
+        color: #1a1a1a;
         margin-bottom: 8px;
+    }
+
+    .calendar-day.today .day-number {
+        color: var(--green-primary);
     }
 
     .day-events {
@@ -154,13 +365,16 @@ include __DIR__ . '/../layout/header.php';
     }
 
     .event-item {
-        padding: 6px 8px;
-        border-radius: 6px;
         font-size: 11px;
-        font-weight: 500;
+        padding: 4px 8px;
+        border-radius: 4px;
+        color: white;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
         cursor: pointer;
         transition: all 0.2s;
-        border-left: 3px solid;
     }
 
     .event-item:hover {
@@ -168,32 +382,16 @@ include __DIR__ . '/../layout/header.php';
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     }
 
-    .event-ficha {
-        background: rgba(59, 130, 246, 0.2);
-        border-color: #3b82f6;
-        color: #93c5fd;
+    .event-item.event-ficha {
+        background: #3b82f6;
     }
 
-    .event-ambiente {
-        background: rgba(245, 158, 11, 0.2);
-        border-color: #f59e0b;
-        color: #fcd34d;
+    .event-item.event-ambiente {
+        background: #f59e0b;
     }
 
-    .event-instructor {
-        background: rgba(139, 92, 246, 0.2);
-        border-color: #8b5cf6;
-        color: #c4b5fd;
-    }
-
-    .legend {
-        display: flex;
-        gap: 24px;
-        margin-top: 20px;
-        padding: 16px;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 8px;
-        flex-wrap: wrap;
+    .event-item.event-instructor {
+        background: #8b5cf6;
     }
 
     .legend-item {
@@ -201,32 +399,28 @@ include __DIR__ . '/../layout/header.php';
         align-items: center;
         gap: 8px;
         font-size: 13px;
-        color: rgba(255, 255, 255, 0.8);
+        color: #4a5568;
     }
 
     .legend-color {
         width: 20px;
         height: 20px;
         border-radius: 4px;
-        border-left: 3px solid;
     }
 
     .legend-color.ficha {
-        background: rgba(59, 130, 246, 0.2);
-        border-color: #3b82f6;
+        background: #3b82f6;
     }
 
     .legend-color.ambiente {
-        background: rgba(245, 158, 11, 0.2);
-        border-color: #f59e0b;
+        background: #f59e0b;
     }
 
     .legend-color.instructor {
-        background: rgba(139, 92, 246, 0.2);
-        border-color: #8b5cf6;
+        background: #8b5cf6;
     }
 
-    /* Modal de evento */
+    /* Modal */
     .event-modal {
         display: none;
         position: fixed;
@@ -234,7 +428,7 @@ include __DIR__ . '/../layout/header.php';
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(0, 0, 0, 0.7);
+        background: rgba(0, 0, 0, 0.5);
         z-index: 1000;
         align-items: center;
         justify-content: center;
@@ -246,13 +440,13 @@ include __DIR__ . '/../layout/header.php';
     }
 
     .event-modal-content {
-        background: rgba(15, 90, 45, 0.98);
-        border: 1px solid rgba(57, 169, 0, 0.5);
+        background: white;
         border-radius: 16px;
         padding: 32px;
         max-width: 500px;
         width: 100%;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(0, 0, 0, 0.1);
     }
 
     .event-modal-header {
@@ -265,7 +459,7 @@ include __DIR__ . '/../layout/header.php';
     .event-modal-title {
         font-size: 20px;
         font-weight: 700;
-        color: white;
+        color: #1a1a1a;
     }
 
     .event-modal-close {
@@ -273,8 +467,8 @@ include __DIR__ . '/../layout/header.php';
         height: 32px;
         border-radius: 50%;
         border: none;
-        background: rgba(255, 255, 255, 0.1);
-        color: white;
+        background: rgba(0, 0, 0, 0.05);
+        color: #4a5568;
         cursor: pointer;
         display: flex;
         align-items: center;
@@ -282,7 +476,7 @@ include __DIR__ . '/../layout/header.php';
     }
 
     .event-modal-close:hover {
-        background: rgba(255, 255, 255, 0.2);
+        background: rgba(0, 0, 0, 0.1);
     }
 
     .event-form-group {
@@ -293,7 +487,7 @@ include __DIR__ . '/../layout/header.php';
         display: block;
         font-size: 13px;
         font-weight: 600;
-        color: rgba(255, 255, 255, 0.9);
+        color: #4a5568;
         margin-bottom: 8px;
     }
 
@@ -302,19 +496,19 @@ include __DIR__ . '/../layout/header.php';
         width: 100%;
         padding: 10px 14px;
         border-radius: 8px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        background: rgba(255, 255, 255, 0.1);
-        color: white;
+        border: 1px solid rgba(0, 0, 0, 0.15);
+        background: white;
+        color: #1a1a1a;
         font-size: 14px;
+        font-weight: 500;
+        transition: all 0.2s;
     }
 
-    .event-form-input::placeholder {
-        color: rgba(255, 255, 255, 0.5);
-    }
-
-    .event-form-select option {
-        background: #1a5a2e;
-        color: white;
+    .event-form-input:focus,
+    .event-form-select:focus {
+        outline: none;
+        border-color: var(--green-primary);
+        box-shadow: 0 0 0 3px rgba(57, 169, 0, 0.1);
     }
 
     .event-form-actions {
@@ -336,39 +530,29 @@ include __DIR__ . '/../layout/header.php';
     .btn-save {
         background: var(--green-primary);
         color: white;
+        box-shadow: 0 2px 8px rgba(57, 169, 0, 0.3);
     }
 
     .btn-save:hover {
         background: var(--green-secondary);
+        box-shadow: 0 4px 12px rgba(0, 120, 50, 0.4);
+        transform: translateY(-1px);
     }
 
     .btn-cancel {
-        background: rgba(255, 255, 255, 0.1);
-        color: white;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: white;
+        color: #4a5568;
+        border: 1px solid rgba(0, 0, 0, 0.15);
     }
 
     .btn-cancel:hover {
-        background: rgba(255, 255, 255, 0.2);
+        background: rgba(0, 0, 0, 0.05);
+        border-color: rgba(0, 0, 0, 0.25);
     }
 
     @media (max-width: 768px) {
-        .calendar-grid {
-            gap: 4px;
-        }
-
-        .calendar-day {
-            min-height: 80px;
-            padding: 4px;
-        }
-
-        .day-number {
-            font-size: 12px;
-        }
-
-        .event-item {
-            font-size: 10px;
-            padding: 4px 6px;
+        .week-view {
+            overflow-x: auto;
         }
     }
 </style>
@@ -378,10 +562,6 @@ include __DIR__ . '/../layout/header.php';
         <h1 class="page-title">Calendario de Programación</h1>
         <p class="page-subtitle">Gestiona horarios, fichas, ambientes y asignaciones</p>
     </div>
-    <button class="btn btn-primary" onclick="openEventModal()">
-        <i data-lucide="plus"></i>
-        Nueva Asignación
-    </button>
 </div>
 
 <div class="calendar-container">
@@ -462,54 +642,65 @@ include __DIR__ . '/../layout/header.php';
 
         <form id="eventForm">
             <div class="event-form-group">
-                <label class="event-form-label">Tipo de Asignación</label>
-                <select class="event-form-select" id="eventType" required>
+                <label class="event-form-label">Fecha <span style="color: red;">*</span></label>
+                <input type="date" class="event-form-input" id="eventDate" name="fecha" required>
+            </div>
+
+            <div class="event-form-group">
+                <label class="event-form-label">Hora Inicio <span style="color: red;">*</span></label>
+                <input type="time" class="event-form-input" id="eventTimeStart" name="hora_inicio" required>
+            </div>
+
+            <div class="event-form-group">
+                <label class="event-form-label">Hora Fin <span style="color: red;">*</span></label>
+                <input type="time" class="event-form-input" id="eventTimeEnd" name="hora_fin" required>
+            </div>
+
+            <div class="event-form-group">
+                <label class="event-form-label">Ficha <span style="color: red;">*</span></label>
+                <select class="event-form-select" id="eventFicha" name="ficha_id" required>
                     <option value="">Seleccionar...</option>
-                    <option value="ficha">Asignación de Ficha</option>
-                    <option value="ambiente">Reserva de Ambiente</option>
-                    <option value="instructor">Horario de Instructor</option>
+                    <?php foreach ($fichas as $ficha): ?>
+                        <option value="<?= htmlspecialchars($ficha['fich_id']) ?>">
+                            Ficha <?= htmlspecialchars($ficha['fich_id']) ?>
+                        </option>
+                    <?php endforeach; ?>
                 </select>
             </div>
 
             <div class="event-form-group">
-                <label class="event-form-label">Fecha</label>
-                <input type="date" class="event-form-input" id="eventDate" required>
-            </div>
-
-            <div class="event-form-group">
-                <label class="event-form-label">Hora Inicio</label>
-                <input type="time" class="event-form-input" id="eventTimeStart" required>
-            </div>
-
-            <div class="event-form-group">
-                <label class="event-form-label">Hora Fin</label>
-                <input type="time" class="event-form-input" id="eventTimeEnd" required>
-            </div>
-
-            <div class="event-form-group">
-                <label class="event-form-label">Ficha</label>
-                <select class="event-form-select" id="eventFicha" required>
+                <label class="event-form-label">Instructor <span style="color: red;">*</span></label>
+                <select class="event-form-select" id="eventInstructor" name="instructor_id" required>
                     <option value="">Seleccionar...</option>
-                    <option value="1">Ficha 2758392</option>
-                    <option value="2">Ficha 2758393</option>
+                    <?php foreach ($instructores as $instructor): ?>
+                        <option value="<?= htmlspecialchars($instructor['inst_id']) ?>">
+                            <?= htmlspecialchars($instructor['inst_nombres'] . ' ' . $instructor['inst_apellidos']) ?>
+                        </option>
+                    <?php endforeach; ?>
                 </select>
             </div>
 
             <div class="event-form-group">
-                <label class="event-form-label">Instructor</label>
-                <select class="event-form-select" id="eventInstructor" required>
+                <label class="event-form-label">Ambiente <span style="color: red;">*</span></label>
+                <select class="event-form-select" id="eventAmbiente" name="ambiente_id" required>
                     <option value="">Seleccionar...</option>
-                    <option value="1">Juan Pérez</option>
-                    <option value="2">María García</option>
+                    <?php foreach ($ambientes as $ambiente): ?>
+                        <option value="<?= htmlspecialchars($ambiente['amb_id']) ?>">
+                            <?= htmlspecialchars($ambiente['amb_nombre']) ?>
+                        </option>
+                    <?php endforeach; ?>
                 </select>
             </div>
 
             <div class="event-form-group">
-                <label class="event-form-label">Ambiente</label>
-                <select class="event-form-select" id="eventAmbiente" required>
+                <label class="event-form-label">Competencia (Opcional)</label>
+                <select class="event-form-select" id="eventCompetencia" name="competencia_id">
                     <option value="">Seleccionar...</option>
-                    <option value="1">Ambiente 101</option>
-                    <option value="2">Ambiente 102</option>
+                    <?php foreach ($competencias as $competencia): ?>
+                        <option value="<?= htmlspecialchars($competencia['comp_id']) ?>">
+                            <?= htmlspecialchars($competencia['comp_nombre_corto']) ?>
+                        </option>
+                    <?php endforeach; ?>
                 </select>
             </div>
 
@@ -651,8 +842,48 @@ include __DIR__ . '/../layout/header.php';
 
     document.getElementById('eventForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        alert('Asignación guardada correctamente');
+        
+        // Por ahora solo mostrar mensaje de éxito
+        const ficha = document.getElementById('eventFicha').options[document.getElementById('eventFicha').selectedIndex].text;
+        const instructor = document.getElementById('eventInstructor').options[document.getElementById('eventInstructor').selectedIndex].text;
+        const fecha = document.getElementById('eventDate').value;
+        const horaInicio = document.getElementById('eventTimeStart').value;
+        
+        alert('✓ Asignación creada exitosamente\n\nFicha: ' + ficha + '\nInstructor: ' + instructor + '\nFecha: ' + fecha + '\nHora: ' + horaInicio);
         closeEventModal();
+        
+        // Cuando tengas la BD, descomenta esto:
+        /*
+        const formData = new FormData(this);
+        const btnSave = this.querySelector('.btn-save');
+        const originalText = btnSave.textContent;
+        
+        btnSave.disabled = true;
+        btnSave.textContent = 'Guardando...';
+        
+        fetch('/mvccc/mvc_programa/controllers/guardar_asignacion.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('✓ Asignación creada exitosamente');
+                closeEventModal();
+                window.location.reload();
+            } else {
+                alert('✗ Error: ' + data.message);
+                btnSave.disabled = false;
+                btnSave.textContent = originalText;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('✗ Error al guardar la asignación');
+            btnSave.disabled = false;
+            btnSave.textContent = originalText;
+        });
+        */
     });
 
     // Cerrar modal al hacer click fuera

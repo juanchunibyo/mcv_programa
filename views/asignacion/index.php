@@ -8,12 +8,21 @@ $rol = $rol ?? 'coordinador';
 $asignaciones = $asignaciones ?? [
     [
         'asig_id' => 1,
-        'fich_id' => '228106-1',
+        'fich_id' => '2758392',
         'inst_nombre' => 'Juan Pérez',
-        'amb_nombre' => 'Laboratorio 1',
-        'asig_fecha_ini' => '2023-01-20',
-        'asig_fecha_fin' => '2023-06-20',
-        'comp_nombre_corto' => 'Promover salud'
+        'amb_nombre' => 'Laboratorio 101',
+        'asig_fecha_ini' => '2026-02-15',
+        'asig_fecha_fin' => '2026-06-15',
+        'comp_nombre_corto' => 'Programación'
+    ],
+    [
+        'asig_id' => 2,
+        'fich_id' => '2758393',
+        'inst_nombre' => 'María García',
+        'amb_nombre' => 'Aula 202',
+        'asig_fecha_ini' => '2026-02-20',
+        'asig_fecha_fin' => '2026-06-20',
+        'comp_nombre_corto' => 'Bases de Datos'
     ],
 ];
 $mensaje = $mensaje ?? null;
@@ -31,13 +40,6 @@ include __DIR__ . '/../layout/header.php';
 
         <div class="page-header">
             <h1 class="page-title">Asignación de Ambientes</h1>
-            <?php if ($rol === 'coordinador'): ?>
-                <a href="crear.php" class="btn btn-primary">
-                    <i data-lucide="plus"></i>
-                    Nueva Asignación
-                </a>
-            <?php
-endif; ?>
         </div>
 
         <!-- Alerts -->

@@ -31,6 +31,14 @@ $breadcrumb = [
 include __DIR__ . '/../layout/header.php';
 ?>
 
+<style>
+    /* Forzar fondo de selva tropical en sedes */
+    body {
+        background-image: url('https://images.unsplash.com/photo-1511497584788-876760111969?w=1920&q=80') !important;
+        background-color: #0d3d0d !important;
+    }
+</style>
+
         <!-- Page Header -->
         <div class="page-header">
             <h1 class="page-title">Gestión de Sedes</h1>

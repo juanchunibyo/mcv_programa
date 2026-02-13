@@ -11,6 +11,13 @@
 $title = $title ?? 'Panel Académico';
 $breadcrumb = $breadcrumb ?? [];
 $rol = $rol ?? 'instructor';
+
+// Detectar la sección actual para aplicar fondos específicos
+$currentSection = '';
+$requestUri = $_SERVER['REQUEST_URI'] ?? '';
+if (strpos($requestUri, '/sede/') !== false) {
+    $currentSection = 'sede';
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -18,7 +25,7 @@ $rol = $rol ?? 'instructor';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($title); ?> — SENA</title>
-    <link rel="stylesheet" href="/mvccc/mvc_programa/assets/css/styles.css?v=17">
+    <link rel="stylesheet" href="/mvccc/mvc_programa/assets/css/styles.css?v=99">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
     <script>
         // FORZAR MODO CLARO - Eliminar tema oscuro
@@ -26,7 +33,7 @@ $rol = $rol ?? 'instructor';
         document.documentElement.removeAttribute('data-theme');
     </script>
 </head>
-<body>
+<body class="<?php echo $currentSection ? 'section-' . $currentSection : ''; ?>">
 
 <!-- Mobile sidebar toggle -->
 <button class="sidebar-toggle" id="sidebarToggle" aria-label="Abrir menú">
@@ -40,13 +47,13 @@ $rol = $rol ?? 'instructor';
     <!-- Sidebar Navigation -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <div class="sidebar-logo">
+            <a href="/mvccc/mvc_programa/" class="sidebar-logo" style="text-decoration: none; color: inherit; cursor: pointer;">
                 <img src="https://bogota.gov.co/sites/default/files/inline-images/logosena.png" alt="Logo SENA" style="width: 50px; height: 50px; object-fit: contain;">
                 <div>
                     <div class="sidebar-logo-text">SENA</div>
                     <div class="sidebar-logo-subtitle">Sistema Académico</div>
                 </div>
-            </div>
+            </a>
         </div>
 
         <nav class="sidebar-nav">
