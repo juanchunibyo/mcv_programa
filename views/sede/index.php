@@ -12,11 +12,11 @@
 // --- Datos de prueba (eliminar cuando el controlador los proporcione) ---
 $rol = $rol ?? 'coordinador'; // Cambiar a 'instructor' para probar restricciones
 $sedes = $sedes ?? [
-    ['sede_id' => 1, 'sede_nombre' => 'Centro de Gestión Industrial'],
-    ['sede_id' => 2, 'sede_nombre' => 'Centro de Tecnologías del Transporte'],
-    ['sede_id' => 3, 'sede_nombre' => 'Centro de Manufactura en Textil y Cuero'],
-    ['sede_id' => 4, 'sede_nombre' => 'Centro Metalmecánico'],
-    ['sede_id' => 5, 'sede_nombre' => 'Centro de Formación de Talento Humano en Salud'],
+    ['sede_id' => 1, 'sede_nombre' => 'SENA – Centro Principal / Sede Cúcuta'],
+    ['sede_id' => 2, 'sede_nombre' => 'SENA CIES – Centro de la Industria, la Empresa y los Servicios'],
+    ['sede_id' => 3, 'sede_nombre' => 'SENA CEDRUM – Centro de Formación para el Desarrollo Rural y Minero'],
+    ['sede_id' => 4, 'sede_nombre' => 'SENA Tecno Parque, Tecno Academia'],
+    ['sede_id' => 5, 'sede_nombre' => 'SENA - Calzado y Marroquinería'],
 ];
 $mensaje = $mensaje ?? null;
 $error = $error ?? null;
@@ -30,14 +30,6 @@ $breadcrumb = [
 
 include __DIR__ . '/../layout/header.php';
 ?>
-
-<style>
-    /* Forzar fondo de selva tropical en sedes */
-    body {
-        background-image: url('https://images.unsplash.com/photo-1511497584788-876760111969?w=1920&q=80') !important;
-        background-color: #0d3d0d !important;
-    }
-</style>
 
         <!-- Page Header -->
         <div class="page-header">

@@ -610,9 +610,10 @@ include __DIR__ . '/../layout/header.php';
         <div class="calendar-day-header">Vie</div>
         <div class="calendar-day-header">Sáb</div>
         <div class="calendar-day-header">Dom</div>
-        
-        <div id="calendarDays"></div>
+        <!-- Los días se generan aquí con JavaScript -->
     </div>
+    
+    <div id="calendarDays" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: rgba(0, 0, 0, 0.08); margin-top: 1px;"></div>
 
     <div class="legend">
         <div class="legend-item">

@@ -22,30 +22,43 @@ include __DIR__ . '/../layout/header.php';
             <h1 class="page-title">Detalle de Horario</h1>
         </div>
 
-        <div class="detail-card">
-            <div class="detail-card-body">
-                <div class="detail-row">
-                    <div class="detail-label">ID Detalle</div>
-                    <div class="detail-value"><?php echo htmlspecialchars($detalle['detasig_id']); ?></div>
-                </div>
-                <div class="detail-row">
-                    <div class="detail-label">ID Asignación</div>
-                    <div class="detail-value"><?php echo htmlspecialchars($detalle['ASIGNACION_asig_id']); ?></div>
-                </div>
-                <div class="detail-row">
-                    <div class="detail-label">Hora Inicio</div>
-                    <div class="detail-value"><?php echo htmlspecialchars($detalle['detasig_hora_ini']); ?></div>
-                </div>
-                <div class="detail-row">
-                    <div class="detail-label">Hora Fin</div>
-                    <div class="detail-value"><?php echo htmlspecialchars($detalle['detasig_hora_fin']); ?></div>
-                </div>
+        <div class="detail-card" style="display: grid; grid-template-columns: 400px 1fr; gap: 2rem; align-items: start;">
+            <div style="width: 400px; height: 400px; overflow: hidden; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <img src="https://images.unsplash.com/photo-1501139083538-0139583c060f?w=400&h=400&fit=crop" 
+                     alt="Horario" 
+                     style="width: 100%; height: 100%; object-fit: cover;">
             </div>
-            <div class="detail-card-footer">
-                <a href="index.php" class="btn btn-secondary">
-                    <i data-lucide="arrow-left"></i>
-                    Volver al Listado
-                </a>
+            
+            <div style="padding: 2rem 0;">
+                <div style="display: inline-block; background: #39a935; color: white; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.875rem; font-weight: 600; margin-bottom: 1.5rem;">
+                    ID: <?php echo htmlspecialchars($detalle['detasig_id']); ?>
+                </div>
+                
+                <h2 style="font-size: 2rem; font-weight: 700; color: #1a1a1a; margin: 0 0 2rem 0;">
+                    Horario <?php echo htmlspecialchars($detalle['detasig_hora_ini']); ?> - <?php echo htmlspecialchars($detalle['detasig_hora_fin']); ?>
+                </h2>
+                
+                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                    <div style="margin-bottom: 1rem;">
+                        <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.25rem;">ID Asignación</div>
+                        <div style="font-size: 1rem; color: #1a1a1a; font-weight: 500;"><?php echo htmlspecialchars($detalle['ASIGNACION_asig_id']); ?></div>
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.25rem;">Hora Inicio</div>
+                        <div style="font-size: 1rem; color: #1a1a1a; font-weight: 500;"><?php echo htmlspecialchars($detalle['detasig_hora_ini']); ?></div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.25rem;">Hora Fin</div>
+                        <div style="font-size: 1rem; color: #1a1a1a; font-weight: 500;"><?php echo htmlspecialchars($detalle['detasig_hora_fin']); ?></div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 2rem;">
+                    <a href="index.php" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                        <i data-lucide="arrow-left"></i>
+                        Volver al Listado
+                    </a>
+                </div>
             </div>
         </div>
 
