@@ -8,11 +8,11 @@
  *   $old      — (Opcional) Datos anteriores para repoblar el formulario
  */
 
-// --- Datos de prueba (eliminar cuando el controlador los proporcione) ---
-$rol = $rol ?? 'coordinador';
-$errores = $errores ?? [];
-$old = $old ?? [];
-// --- Fin datos de prueba ---
+session_start();
+
+$rol = 'coordinador';
+$errores = [];
+$old = [];
 
 $title = 'Registrar Sede';
 $breadcrumb = [
@@ -32,7 +32,7 @@ include __DIR__ . '/../layout/header.php';
         <!-- Form -->
         <div class="form-container">
             <div class="form-card">
-                <form id="formCrearSede" method="POST" action="" novalidate>
+                <form id="formCrearSede" method="POST" action="procesar.php" novalidate>
                     <input type="hidden" name="action" value="create">
 
                     <div class="form-group">

@@ -3,78 +3,52 @@ require_once __DIR__ . '/../Conexion.php';
 class InstructorModel
 {
     private $inst_id;
-    private $inst_nombre;
+    private $inst_nombres;
     private $inst_apellidos;
     private $inst_correo;
     private $inst_telefono;
+    private $centro_formacion_cent_id;
     private $db;
 
-    public function __construct($inst_id, $inst_nombre, $inst_apellidos, $inst_correo, $inst_telefono)
+    public function __construct($inst_id, $inst_nombres, $inst_apellidos, $inst_correo, $inst_telefono, $centro_formacion_cent_id = null)
     {
         $this->setInstId($inst_id);
-        $this->setInstNombre($inst_nombre);
+        $this->setInstNombres($inst_nombres);
         $this->setInstApellidos($inst_apellidos);
         $this->setInstCorreo($inst_correo);
         $this->setInstTelefono($inst_telefono);
+        $this->setCentroFormacionCentId($centro_formacion_cent_id);
         $this->db = Conexion::getConnect();
     }
-    //getters 
 
-    public function getInstId()
-    {
-        return $this->inst_id;
-    }
-    public function getInstNombre()
-    {
-        return $this->inst_nombre;
-    }
-    public function getInstApellidos()
-    {
-        return $this->inst_apellidos;
-    }
-    public function getInstCorreo()
-    {
-        return $this->inst_correo;
-    }
-    public function getInstTelefono()
-    {
-        return $this->inst_telefono;
-    }
+    public function getInstId() { return $this->inst_id; }
+    public function getInstNombres() { return $this->inst_nombres; }
+    public function getInstApellidos() { return $this->inst_apellidos; }
+    public function getInstCorreo() { return $this->inst_correo; }
+    public function getInstTelefono() { return $this->inst_telefono; }
+    public function getCentroFormacionCentId() { return $this->centro_formacion_cent_id; }
 
-    //setters 
-    public function setInstId($inst_id)
-    {
-        $this->inst_id = $inst_id;
-    }
-    public function setInstNombre($inst_nombre)
-    {
-        $this->inst_nombre = $inst_nombre;
-    }
-    public function setInstApellidos($inst_apellidos)
-    {
-        $this->inst_apellidos = $inst_apellidos;
-    }
-    public function setInstCorreo($inst_correo)
-    {
-        $this->inst_correo = $inst_correo;
-    }
-    public function setInstTelefono($inst_telefono)
-    {
-        $this->inst_telefono = $inst_telefono;
-    }
-    //crud
+    public function setInstId($inst_id) { $this->inst_id = $inst_id; }
+    public function setInstNombres($inst_nombres) { $this->inst_nombres = $inst_nombres; }
+    public function setInstApellidos($inst_apellidos) { $this->inst_apellidos = $inst_apellidos; }
+    public function setInstCorreo($inst_correo) { $this->inst_correo = $inst_correo; }
+    public function setInstTelefono($inst_telefono) { $this->inst_telefono = $inst_telefono; }
+    public function setCentroFormacionCentId($centro_formacion_cent_id) { $this->centro_formacion_cent_id = $centro_formacion_cent_id; }
+
     public function create()
     {
-        $query = "INSERT INTO instructor (inst_nombre, inst_apellidos, inst_correo, inst_telefono) 
-        VALUES (:inst_nombre, :inst_apellidos, :inst_correo, :inst_telefono)";
+        $query = "INSERT INTO instructor (inst_nombres, inst_apellidos, inst_correo, inst_telefono, centro_formacion_cent_id) 
+        VALUES (:inst_nombres, :inst_apellidos, :inst_correo, :inst_telefono, :centro_formacion_cent_id)";
         $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':inst_nombre', $this->inst_nombre);
+        $stmt->bindParam(':inst_nombres', $this->inst_nombres);
         $stmt->bindParam(':inst_apellidos', $this->inst_apellidos);
         $stmt->bindParam(':inst_correo', $this->inst_correo);
         $stmt->bindParam(':inst_telefono', $this->inst_telefono);
+        $stmt->bindParam(':centro_formacion_cent_id', $this->centro_formacion_cent_id);
         $stmt->execute();
         return $this->db->lastInsertId();
     }
+    
     public function read()
     {
         $sql = "SELECT * FROM instructor WHERE inst_id = :inst_id";
@@ -90,18 +64,21 @@ class InstructorModel
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+    
     public function update()
     {
-        $query = "UPDATE instructor SET inst_nombre = :inst_nombre, inst_apellidos = :inst_apellidos, inst_correo = :inst_correo, inst_telefono = :inst_telefono WHERE inst_id = :inst_id";
+        $query = "UPDATE instructor SET inst_nombres = :inst_nombres, inst_apellidos = :inst_apellidos, inst_correo = :inst_correo, inst_telefono = :inst_telefono, centro_formacion_cent_id = :centro_formacion_cent_id WHERE inst_id = :inst_id";
         $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':inst_nombre', $this->inst_nombre);
+        $stmt->bindParam(':inst_nombres', $this->inst_nombres);
         $stmt->bindParam(':inst_apellidos', $this->inst_apellidos);
         $stmt->bindParam(':inst_correo', $this->inst_correo);
         $stmt->bindParam(':inst_telefono', $this->inst_telefono);
+        $stmt->bindParam(':centro_formacion_cent_id', $this->centro_formacion_cent_id);
         $stmt->bindParam(':inst_id', $this->inst_id);
         $stmt->execute();
         return $stmt;
     }
+    
     public function delete()
     {
         $query = "DELETE FROM instructor WHERE inst_id = :inst_id";

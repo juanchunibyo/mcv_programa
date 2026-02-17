@@ -22,14 +22,8 @@ include __DIR__ . '/../layout/header.php';
             <h1 class="page-title">Detalle de Competencia</h1>
         </div>
 
-        <div class="detail-card" style="display: grid; grid-template-columns: 400px 1fr; gap: 2rem; align-items: start;">
-            <div style="width: 400px; height: 400px; overflow: hidden; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=400&fit=crop" 
-                     alt="Competencia" 
-                     style="width: 100%; height: 100%; object-fit: cover;">
-            </div>
-            
-            <div style="padding: 2rem 0;">
+        <div style="max-width: 800px;">
+            <div style="background: white; border-radius: 16px; padding: 32px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
                 <div style="display: inline-block; background: #39a935; color: white; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.875rem; font-weight: 600; margin-bottom: 1.5rem;">
                     ID: <?php echo htmlspecialchars($competencia['comp_id']); ?>
                 </div>

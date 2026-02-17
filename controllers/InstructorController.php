@@ -10,7 +10,7 @@ class InstructorController
     public static function obtenerInstructor($instId)
     {
         try {
-            $instructor = new InstructorModel($instId, '', '', '', '');
+            $instructor = new InstructorModel($instId, '', '', '', '', null);
             $resultado = $instructor->read();
             
             if (!empty($resultado)) {
@@ -31,7 +31,7 @@ class InstructorController
     public static function obtenerTodosInstructores()
     {
         try {
-            $instructor = new InstructorModel(null, '', '', '', '');
+            $instructor = new InstructorModel(null, '', '', '', '', null);
             return $instructor->readAll();
             
         } catch (Exception $e) {
@@ -48,10 +48,11 @@ class InstructorController
         try {
             $instructor = new InstructorModel(
                 null,
-                $datos['inst_nombre'],
+                $datos['inst_nombres'],
                 $datos['inst_apellidos'],
                 $datos['inst_correo'],
-                $datos['inst_telefono']
+                $datos['inst_telefono'],
+                $datos['centro_formacion_cent_id'] ?? null
             );
             
             $instId = $instructor->create();
@@ -79,10 +80,11 @@ class InstructorController
         try {
             $instructor = new InstructorModel(
                 $instId,
-                $datos['inst_nombre'],
+                $datos['inst_nombres'],
                 $datos['inst_apellidos'],
                 $datos['inst_correo'],
-                $datos['inst_telefono']
+                $datos['inst_telefono'],
+                $datos['centro_formacion_cent_id'] ?? null
             );
             
             $instructor->update();
@@ -107,7 +109,7 @@ class InstructorController
     public static function eliminarInstructor($instId)
     {
         try {
-            $instructor = new InstructorModel($instId, '', '', '', '');
+            $instructor = new InstructorModel($instId, '', '', '', '', null);
             $instructor->delete();
             
             return [

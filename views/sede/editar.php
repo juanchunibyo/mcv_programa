@@ -8,11 +8,28 @@
  *   $errores  — (Opcional) Array de errores ['sede_nombre' => 'El nombre es requerido']
  */
 
-// --- Datos de prueba (eliminar cuando el controlador los proporcione) ---
-$rol = $rol ?? 'coordinador';
-$sede = $sede ?? ['sede_id' => 1, 'sede_nombre' => 'Centro de Gestión Industrial'];
-$errores = $errores ?? [];
-// --- Fin datos de prueba ---
+// Obtener datos reales del controlador
+require_once __DIR__ . '/../../controllers/SedeController.php';
+session_start();
+
+$rol = 'coordinador';
+$sedeId = intval($_GET['id'] ?? 0);
+
+if ($sedeId <= 0) {
+    $_SESSION['error'] = 'ID de sede inválido';
+    header('Location: index.php');
+    exit;
+}
+
+$sede = SedeController::obtenerSede($sedeId);
+
+if (!$sede) {
+    $_SESSION['error'] = 'Sede no encontrada';
+    header('Location: index.php');
+    exit;
+}
+
+$errores = [];
 
 $title = 'Editar Sede';
 $breadcrumb = [
@@ -32,7 +49,7 @@ include __DIR__ . '/../layout/header.php';
         <!-- Form -->
         <div class="form-container">
             <div class="form-card">
-                <form id="formEditarSede" method="POST" action="" novalidate>
+                <form id="formEditarSede" method="POST" action="procesar.php" novalidate>
                     <input type="hidden" name="action" value="update">
                     <input type="hidden" name="sede_id" value="<?php echo htmlspecialchars($sede['sede_id']); ?>">
 

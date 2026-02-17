@@ -111,14 +111,8 @@ include __DIR__ . '/../layout/header.php';
     <h1 class="page-title">Detalle de Programa</h1>
 </div>
 
-<div class="programa-detail-container">
-    <!-- Sección de Imagen -->
-    <div class="programa-image-section">
-        <img src="<?= htmlspecialchars($programa['prog_foto']) ?>" alt="<?= htmlspecialchars($programa['prog_nombre']) ?>" class="programa-image">
-    </div>
-
-    <!-- Sección de Información -->
-    <div class="programa-info-section">
+<div style="max-width: 800px;">
+    <div style="background: white; border-radius: 16px; padding: 32px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
         <span class="programa-id-badge">Código: <?= htmlspecialchars($programa['prog_codigo']) ?></span>
         <h2 class="programa-title"><?= htmlspecialchars($programa['prog_denominacion']) ?></h2>
 

@@ -113,17 +113,21 @@ if (strpos($requestUri, '/sede/') !== false) {
         <div class="sidebar-footer">
             <div class="sidebar-user">
                 <div class="sidebar-user-avatar" style="background: none; padding: 0;">
-                    <img src="https://ui-avatars.com/api/?name=Juan+Diego+Rubio&background=39A900&color=fff&size=128" alt="Juan Diego Rubio" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                    <img src="https://ui-avatars.com/api/?name=<?php echo urlencode($_SESSION['usuario_correo'] ?? 'Usuario'); ?>&background=39A900&color=fff&size=128" alt="Usuario" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
                 </div>
                 <div class="sidebar-user-info">
                     <div class="sidebar-user-name">
-                        Juan Diego Rubio
+                        <?php echo htmlspecialchars($_SESSION['usuario_correo'] ?? 'Usuario'); ?>
                     </div>
                     <div class="sidebar-user-role">
                         <?php echo($rol === 'coordinador') ? 'Coordinador Académico' : 'Instructor'; ?>
                     </div>
                 </div>
             </div>
+            <a href="/mvccc/mvc_programa/logout.php" class="sidebar-link" style="margin-top: 10px; color: #ff4444;">
+                <i data-lucide="log-out"></i>
+                Cerrar Sesión
+            </a>
         </div>
     </aside>
 

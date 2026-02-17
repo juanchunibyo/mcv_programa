@@ -114,14 +114,8 @@ include __DIR__ . '/../layout/header.php';
     <h1 class="page-title">Detalle de Ficha</h1>
 </div>
 
-<div class="ficha-detail-container">
-    <!-- Sección de Imagen -->
-    <div class="ficha-image-section">
-        <img src="<?= htmlspecialchars($ficha['fich_foto']) ?>" alt="Ficha <?= htmlspecialchars($ficha['fich_id']) ?>" class="ficha-image">
-    </div>
-
-    <!-- Sección de Información -->
-    <div class="ficha-info-section">
+<div style="max-width: 800px;">
+    <div style="background: white; border-radius: 16px; padding: 32px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
         <span class="ficha-id-badge">Ficha: <?= htmlspecialchars($ficha['fich_id']) ?></span>
         <h2 class="ficha-title"><?= htmlspecialchars($ficha['fich_nombre']) ?></h2>
 
