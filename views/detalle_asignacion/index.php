@@ -3,14 +3,17 @@
  * Vista: Listado de Detalles de Asignación (index.php)
  */
 
-// --- Datos de prueba ---
+require_once __DIR__ . '/../../controllers/DetalleAsignacionController.php';
+
+session_start();
+
+// Obtener datos reales de la base de datos
 $rol = $rol ?? 'coordinador';
-$detalles = $detalles ?? [
-    ['detasig_id' => 1, 'asignacion_asig_id' => 1, 'detasig_hora_ini' => '08:00', 'detasig_hora_fin' => '12:00'],
-];
-$mensaje = $mensaje ?? null;
-$error = $error ?? null;
-// --- Fin datos de prueba ---
+$detalles = DetalleAsignacionController::obtenerTodosDetalles();
+
+$mensaje = $_SESSION['mensaje'] ?? null;
+$error = $_SESSION['error'] ?? null;
+unset($_SESSION['mensaje'], $_SESSION['error']);
 
 $title = 'Detalles de Asignación';
 $breadcrumb = [
@@ -120,7 +123,7 @@ endif; ?>
             <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">
                 Cancelar
             </button>
-            <form id="deleteForm" method="POST" action="" style="flex:1;">
+            <form id="deleteForm" method="POST" action="procesar.php" style="flex:1;">
                 <input type="hidden" name="detasig_id" id="deleteModalId">
                 <input type="hidden" name="action" value="delete">
                 <button type="submit" class="btn btn-danger" style="width:100%;justify-content:center;">

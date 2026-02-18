@@ -1,26 +1,18 @@
 <?php
 /**
  * Vista: Listado de Sedes (index.php)
- *
- * Variables esperadas del controlador:
- *   $sedes    — Array de sedes [['sede_id' => 1, 'sede_nombre' => '...'], ...]
- *   $rol      — 'coordinador' | 'instructor'
- *   $mensaje  — (Opcional) Mensaje de éxito
- *   $error    — (Opcional) Mensaje de error
  */
 
-// --- Datos de prueba (eliminar cuando el controlador los proporcione) ---
-$rol = $rol ?? 'coordinador'; // Cambiar a 'instructor' para probar restricciones
-$sedes = $sedes ?? [
-    ['sede_id' => 1, 'sede_nombre' => 'SENA – Centro Principal / Sede Cúcuta'],
-    ['sede_id' => 2, 'sede_nombre' => 'SENA CIES – Centro de la Industria, la Empresa y los Servicios'],
-    ['sede_id' => 3, 'sede_nombre' => 'SENA CEDRUM – Centro de Formación para el Desarrollo Rural y Minero'],
-    ['sede_id' => 4, 'sede_nombre' => 'SENA Tecno Parque, Tecno Academia'],
-    ['sede_id' => 5, 'sede_nombre' => 'SENA - Calzado y Marroquinería'],
-];
-$mensaje = $mensaje ?? null;
-$error = $error ?? null;
-// --- Fin datos de prueba ---
+require_once __DIR__ . '/../../controllers/SedeController.php';
+
+session_start();
+
+// Obtener datos reales de la base de datos
+$rol = $rol ?? 'coordinador';
+$sedes = SedeController::obtenerTodasSedes();
+$mensaje = $_SESSION['mensaje'] ?? null;
+$error = $_SESSION['error'] ?? null;
+unset($_SESSION['mensaje'], $_SESSION['error']);
 
 $title = 'Gestión de Sedes';
 $breadcrumb = [

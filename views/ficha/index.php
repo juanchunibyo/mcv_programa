@@ -3,15 +3,15 @@
  * Vista: Listado de Fichas (index.php)
  */
 
-// --- Datos de prueba ---
+require_once __DIR__ . '/../../controllers/FichaController.php';
+
+session_start();
+
 $rol = $rol ?? 'coordinador';
-$fichas = $fichas ?? [
-    ['fich_id' => '228106-1', 'prog_denominacion' => 'Análisis y Desarrollo de Software', 'instructor_nombre' => 'Juan Pérez', 'fich_jornada' => 'Diurna'],
-    ['fich_id' => '233104-2', 'prog_denominacion' => 'Gestión Contable', 'instructor_nombre' => 'María Gómez', 'fich_jornada' => 'Mixta'],
-];
-$mensaje = $mensaje ?? null;
-$error = $error ?? null;
-// --- Fin datos de prueba ---
+$fichas = FichaController::obtenerTodasFichas();
+$mensaje = $_SESSION['mensaje'] ?? null;
+$error = $_SESSION['error'] ?? null;
+unset($_SESSION['mensaje'], $_SESSION['error']);
 
 $title = 'Gestión de Fichas';
 $breadcrumb = [
@@ -70,7 +70,7 @@ include __DIR__ . '/../layout/header.php';
                 <table class="data-table" id="fichasTable">
                     <thead>
                         <tr>
-                            <th style="width: 140px;">ID Ficha</th>
+                            <th style="width: 100px;">ID</th>
                             <th>Programa</th>
                             <th style="width: 200px;">Instructor Líder</th>
                             <th style="width: 120px;">Jornada</th>
@@ -81,25 +81,25 @@ include __DIR__ . '/../layout/header.php';
                         <?php foreach ($fichas as $ficha): ?>
                         <tr>
                             <td>
-                                <span class="ficha-id"><?php echo htmlspecialchars($ficha['fich_id']); ?></span>
+                                <span class="table-id">#<?php echo htmlspecialchars($ficha['fich_id']); ?></span>
                             </td>
                             <td>
                                 <div class="program-cell">
                                     <div class="program-icon">
                                         <i data-lucide="book-open"></i>
                                     </div>
-                                    <span class="program-name"><?php echo htmlspecialchars($ficha['prog_denominacion']); ?></span>
+                                    <span class="program-name"><?php echo htmlspecialchars($ficha['titpro_nombre'] ?? 'Sin programa'); ?></span>
                                 </div>
                             </td>
                             <td>
                                 <div class="instructor-cell">
                                     <i data-lucide="user"></i>
-                                    <?php echo htmlspecialchars($ficha['instructor_nombre']); ?>
+                                    <?php echo htmlspecialchars(($ficha['inst_nombres'] ?? '') . ' ' . ($ficha['inst_apellidos'] ?? '')); ?>
                                 </div>
                             </td>
                             <td>
-                                <span class="jornada-badge <?php echo strtolower($ficha['fich_jornada']); ?>">
-                                    <?php echo htmlspecialchars($ficha['fich_jornada']); ?>
+                                <span class="jornada-badge">
+                                    <?php echo htmlspecialchars($ficha['fich_jornada'] ?? 'N/A'); ?>
                                 </span>
                             </td>
                             <td>
@@ -111,7 +111,7 @@ include __DIR__ . '/../layout/header.php';
                                         <a href="editar.php?id=<?php echo $ficha['fich_id']; ?>" class="action-btn edit-btn" title="Editar">
                                             <i data-lucide="pencil-line"></i>
                                         </a>
-                                        <button type="button" class="action-btn delete-btn" title="Eliminar" onclick="confirmDelete('<?php echo $ficha['fich_id']; ?>', '<?php echo htmlspecialchars(addslashes($ficha['fich_id']), ENT_QUOTES); ?>')">
+                                        <button type="button" class="action-btn delete-btn" title="Eliminar" onclick="confirmDelete(<?php echo $ficha['fich_id']; ?>, 'Ficha #<?php echo $ficha['fich_id']; ?>')">
                                             <i data-lucide="trash-2"></i>
                                         </button>
                                     <?php endif; ?>
@@ -174,7 +174,7 @@ function filterTable() {
             </div>
             <h3 class="modal-title">Eliminar Ficha</h3>
             <p class="modal-text">
-                ¿Estás seguro de que deseas eliminar la ficha
+                ¿Estás seguro de que deseas eliminar la
                 <strong id="deleteModalName"></strong>?
                 Esta acción no se puede deshacer.
             </p>
@@ -183,7 +183,7 @@ function filterTable() {
             <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">
                 Cancelar
             </button>
-            <form id="deleteForm" method="POST" action="" style="flex:1;">
+            <form id="deleteForm" method="POST" action="procesar.php" style="flex:1;">
                 <input type="hidden" name="fich_id" id="deleteModalId">
                 <input type="hidden" name="action" value="delete">
                 <button type="submit" class="btn btn-danger" style="width:100%;justify-content:center;">

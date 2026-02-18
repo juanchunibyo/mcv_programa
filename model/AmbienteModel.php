@@ -2,24 +2,24 @@
 require_once __DIR__ . '/../Conexion.php';
 class AmbienteModel
 {
-    private $id_ambiente;
+    private $amb_id;
     private $amb_nombre;
-    private $Sede_sede_id;
+    private $SEDE_sede_id;
 
     private $db;
 
-    public function __construct($id_ambiente, $amb_nombre, $Sede_sede_id)
+    public function __construct($amb_id, $amb_nombre, $SEDE_sede_id)
     {
-        $this->setIdAmbiente($id_ambiente);
+        $this->setAmbId($amb_id);
         $this->setAmbnombre($amb_nombre);
-        $this->setSedeSedeId($Sede_sede_id);
+        $this->setSedeSedeId($SEDE_sede_id);
         $this->db = Conexion::getConnect();
     }
     //getters 
 
-    public function getIdAmbiente()
+    public function getAmbId()
     {
-        return $this->id_ambiente;
+        return $this->amb_id;
     }
     public function getAmbnombre()
     {
@@ -27,30 +27,30 @@ class AmbienteModel
     }
     public function getSedeSedeId()
     {
-        return $this->Sede_sede_id;
+        return $this->SEDE_sede_id;
     }
 
     //setters 
-    public function setIdAmbiente($id_ambiente)
+    public function setAmbId($amb_id)
     {
-        $this->id_ambiente = $id_ambiente;
+        $this->amb_id = $amb_id;
     }
     public function setAmbnombre($amb_nombre)
     {
         $this->amb_nombre = $amb_nombre;
     }
-    public function setSedeSedeId($Sede_sede_id)
+    public function setSedeSedeId($SEDE_sede_id)
     {
-        $this->Sede_sede_id = $Sede_sede_id;
+        $this->SEDE_sede_id = $SEDE_sede_id;
     }
     //crud
     public function create()
     {
-        $query = "INSERT INTO ambiente (amb_nombre, Sede_sede_id) 
-        VALUES (:amb_nombre, :Sede_sede_id)";
+        $query = "INSERT INTO ambiente (amb_nombre, sede_sede_id) 
+        VALUES (:amb_nombre, :SEDE_sede_id)";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':amb_nombre', $this->amb_nombre);
-        $stmt->bindParam(':Sede_sede_id', $this->Sede_sede_id);
+        $stmt->bindParam(':SEDE_sede_id', $this->SEDE_sede_id);
         $stmt->execute();
         return $this->db->lastInsertId();
 
@@ -59,7 +59,7 @@ class AmbienteModel
     {
         $sql = "SELECT * FROM ambiente WHERE sede_sede_id = :sede";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([':sede' => $this->Sede_sede_id]);
+        $stmt->execute([':sede' => $this->SEDE_sede_id]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -72,19 +72,19 @@ class AmbienteModel
     }
     public function update()
     {
-        $query = "UPDATE ambiente SET amb_nombre = :amb_nombre, Sede_sede_id = :Sede_sede_id WHERE id_ambiente = :id_ambiente";
+        $query = "UPDATE ambiente SET amb_nombre = :amb_nombre, sede_sede_id = :SEDE_sede_id WHERE amb_id = :amb_id";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':amb_nombre', $this->amb_nombre);
-        $stmt->bindParam(':Sede_sede_id', $this->Sede_sede_id);
-        $stmt->bindParam(':id_ambiente', $this->id_ambiente);
+        $stmt->bindParam(':SEDE_sede_id', $this->SEDE_sede_id);
+        $stmt->bindParam(':amb_id', $this->amb_id);
         $stmt->execute();
         return $stmt;
     }
     public function delete()
     {
-        $query = "DELETE FROM ambiente WHERE id_ambiente = :id_ambiente";
+        $query = "DELETE FROM ambiente WHERE amb_id = :amb_id";
         $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':id_ambiente', $this->id_ambiente);
+        $stmt->bindParam(':amb_id', $this->amb_id);
         $stmt->execute();
         return $stmt;
     }

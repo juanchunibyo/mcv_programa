@@ -68,10 +68,27 @@ class SedeModel
     }
     public function delete()
     {
-        $query = "DELETE FROM sede WHERE sede_id = :sede_id";
-        $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':sede_id', $this->sede_id);
-        $stmt->execute();
-        return $stmt;
+        try {
+            // Primero eliminar ambientes asociados
+            $queryAmbientes = "DELETE FROM ambiente WHERE sede_sede_id = :sede_id";
+            $stmtAmbientes = $this->db->prepare($queryAmbientes);
+            $stmtAmbientes->bindParam(':sede_id', $this->sede_id);
+            $stmtAmbientes->execute();
+            
+            // Eliminar programas asociados (o actualizar a NULL si se permite)
+            $queryProgramas = "UPDATE programa SET sede_sede_id = NULL WHERE sede_sede_id = :sede_id";
+            $stmtProgramas = $this->db->prepare($queryProgramas);
+            $stmtProgramas->bindParam(':sede_id', $this->sede_id);
+            $stmtProgramas->execute();
+            
+            // Luego eliminar la sede
+            $query = "DELETE FROM sede WHERE sede_id = :sede_id";
+            $stmt = $this->db->prepare($query);
+            $stmt->bindParam(':sede_id', $this->sede_id);
+            $stmt->execute();
+            return $stmt;
+        } catch (Exception $e) {
+            throw $e;
+        }
     }
 }

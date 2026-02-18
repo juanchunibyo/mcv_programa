@@ -3,16 +3,16 @@
  * Vista: Listado de Programas
  */
 
-// --- Datos de prueba ---
+require_once __DIR__ . '/../../controllers/ProgramaController.php';
+
+session_start();
+
+// Obtener datos reales de la base de datos
 $rol = $rol ?? 'coordinador';
-$programas = $programas ?? [
-    ['prog_id' => 1, 'prog_nombre' => 'Análisis y Desarrollo de Software', 'prog_duracion' => '24 meses', 'prog_nivel' => 'Tecnólogo'],
-    ['prog_id' => 2, 'prog_nombre' => 'Gestión Administrativa', 'prog_duracion' => '18 meses', 'prog_nivel' => 'Técnico'],
-    ['prog_id' => 3, 'prog_nombre' => 'Diseño Gráfico', 'prog_duracion' => '12 meses', 'prog_nivel' => 'Técnico'],
-];
-$mensaje = $mensaje ?? null;
-$error = $error ?? null;
-// --- Fin datos de prueba ---
+$programas = ProgramaController::obtenerTodosProgramas();
+$mensaje = $_SESSION['mensaje'] ?? null;
+$error = $_SESSION['error'] ?? null;
+unset($_SESSION['mensaje'], $_SESSION['error']);
 
 $title = 'Gestión de Programas';
 $breadcrumb = [
@@ -82,25 +82,25 @@ include __DIR__ . '/../layout/header.php';
                         <?php foreach ($programas as $prog): ?>
                         <tr>
                             <td>
-                                <span class="table-id">#<?php echo htmlspecialchars($prog['prog_id']); ?></span>
+                                <span class="table-id">#<?php echo htmlspecialchars($prog['prog_codigo']); ?></span>
                             </td>
                             <td>
                                 <div class="program-cell">
                                     <div class="program-icon">
                                         <i data-lucide="graduation-cap"></i>
                                     </div>
-                                    <span class="program-name"><?php echo htmlspecialchars($prog['prog_nombre']); ?></span>
+                                    <span class="program-name"><?php echo htmlspecialchars($prog['titpro_nombre'] ?? 'Sin nombre'); ?></span>
                                 </div>
                             </td>
                             <td>
                                 <span class="duration-badge">
                                     <i data-lucide="clock"></i>
-                                    <?php echo htmlspecialchars($prog['prog_duracion']); ?>
+                                    <?php echo htmlspecialchars($prog['prog_tipo'] ?? 'N/A'); ?>
                                 </span>
                             </td>
                             <td>
-                                <span class="level-badge <?php echo strtolower($prog['prog_nivel']); ?>">
-                                    <?php echo htmlspecialchars($prog['prog_nivel']); ?>
+                                <span class="level-badge">
+                                    <?php echo htmlspecialchars($prog['prog_tipo'] ?? 'N/A'); ?>
                                 </span>
                             </td>
                             <td>
@@ -112,7 +112,7 @@ include __DIR__ . '/../layout/header.php';
                                         <a href="editar.php?id=<?php echo $prog['prog_id']; ?>" class="action-btn edit-btn" title="Editar">
                                             <i data-lucide="pencil-line"></i>
                                         </a>
-                                        <button type="button" class="action-btn delete-btn" title="Eliminar" onclick="confirmDelete(<?php echo $prog['prog_id']; ?>, '<?php echo htmlspecialchars(addslashes($prog['prog_nombre']), ENT_QUOTES); ?>')">
+                                        <button type="button" class="action-btn delete-btn" title="Eliminar" onclick="confirmDelete(<?php echo $prog['prog_id']; ?>, '<?php echo htmlspecialchars(addslashes($prog['titpro_nombre'] ?? 'Sin nombre'), ENT_QUOTES); ?>')">
                                             <i data-lucide="trash-2"></i>
                                         </button>
                                     <?php endif; ?>
@@ -184,7 +184,7 @@ function filterTable() {
             <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">
                 Cancelar
             </button>
-            <form id="deleteForm" method="POST" action="" style="flex:1;">
+            <form id="deleteForm" method="POST" action="procesar.php" style="flex:1;">
                 <input type="hidden" name="prog_id" id="deleteModalId">
                 <input type="hidden" name="action" value="delete">
                 <button type="submit" class="btn btn-danger" style="width:100%;justify-content:center;">

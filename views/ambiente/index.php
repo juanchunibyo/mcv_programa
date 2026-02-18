@@ -3,15 +3,38 @@
  * Vista: Listado de Ambientes (index.php)
  */
 
-// --- Datos de prueba ---
+require_once __DIR__ . '/../../controllers/AmbienteController.php';
+require_once __DIR__ . '/../../controllers/SedeController.php';
+
+session_start();
+
+// Obtener datos reales de la base de datos
 $rol = $rol ?? 'coordinador';
-$ambientes = $ambientes ?? [
-    ['id_ambiente' => 1, 'amb_nombre' => 'Laboratorio de Software 1', 'sede_nombre' => 'Centro de Gestión Industrial'],
-    ['id_ambiente' => 2, 'amb_nombre' => 'Sala de Cómputo 204', 'sede_nombre' => 'Centro de Gestión Industrial'],
-];
-$mensaje = $mensaje ?? null;
-$error = $error ?? null;
-// --- Fin datos de prueba ---
+$ambientesDB = AmbienteController::obtenerTodosAmbientes();
+$sedes = SedeController::obtenerTodasSedes();
+
+// Crear un mapa de sedes para búsqueda rápida
+$sedesMap = [];
+foreach ($sedes as $sede) {
+    $sedesMap[$sede['sede_id']] = $sede['sede_nombre'];
+}
+
+// Agregar nombre de sede a cada ambiente
+$ambientes = [];
+foreach ($ambientesDB as $amb) {
+    // Manejar diferentes nombres de columna (mayúsculas/minúsculas)
+    $sedeId = $amb['SEDE_sede_id'] ?? $amb['sede_sede_id'] ?? null;
+    
+    $ambientes[] = [
+        'amb_id' => $amb['amb_id'],
+        'amb_nombre' => $amb['amb_nombre'],
+        'sede_nombre' => $sedeId ? ($sedesMap[$sedeId] ?? 'Sin sede') : 'Sin sede'
+    ];
+}
+
+$mensaje = $_SESSION['mensaje'] ?? null;
+$error = $_SESSION['error'] ?? null;
+unset($_SESSION['mensaje'], $_SESSION['error']);
 
 $title = 'Gestión de Ambientes';
 $breadcrumb = [
@@ -65,19 +88,19 @@ endif; ?>
                     <tbody>
                         <?php foreach ($ambientes as $amb): ?>
                         <tr>
-                            <td><span class="table-id"><?php echo htmlspecialchars($amb['id_ambiente']); ?></span></td>
+                            <td><span class="table-id"><?php echo htmlspecialchars($amb['amb_id']); ?></span></td>
                             <td><?php echo htmlspecialchars($amb['amb_nombre']); ?></td>
                             <td><?php echo htmlspecialchars($amb['sede_nombre']); ?></td>
                             <td>
                                 <div class="table-actions">
-                                    <a href="ver.php?id=<?php echo $amb['id_ambiente']; ?>" class="action-btn view-btn" title="Ver detalle">
+                                    <a href="ver.php?id=<?php echo $amb['amb_id']; ?>" class="action-btn view-btn" title="Ver detalle">
                                         <i data-lucide="eye"></i>
                                     </a>
                                     <?php if ($rol === 'coordinador'): ?>
-                                        <a href="editar.php?id=<?php echo $amb['id_ambiente']; ?>" class="action-btn edit-btn" title="Editar ambiente">
+                                        <a href="editar.php?id=<?php echo $amb['amb_id']; ?>" class="action-btn edit-btn" title="Editar ambiente">
                                             <i data-lucide="pencil-line"></i>
                                         </a>
-                                        <button type="button" class="action-btn delete-btn" title="Eliminar ambiente" onclick="confirmDelete(<?php echo $amb['id_ambiente']; ?>, '<?php echo htmlspecialchars(addslashes($amb['amb_nombre']), ENT_QUOTES); ?>')">
+                                        <button type="button" class="action-btn delete-btn" title="Eliminar ambiente" onclick="confirmDelete(<?php echo $amb['amb_id']; ?>, '<?php echo htmlspecialchars(addslashes($amb['amb_nombre']), ENT_QUOTES); ?>')">
                                             <i data-lucide="trash-2"></i>
                                         </button>
                                     <?php
@@ -130,8 +153,8 @@ endif; ?>
             <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">
                 Cancelar
             </button>
-            <form id="deleteForm" method="POST" action="" style="flex:1;">
-                <input type="hidden" name="id_ambiente" id="deleteModalId">
+            <form id="deleteForm" method="POST" action="procesar.php" style="flex:1;">
+                <input type="hidden" name="amb_id" id="deleteModalId">
                 <input type="hidden" name="action" value="delete">
                 <button type="submit" class="btn btn-danger" style="width:100%;justify-content:center;">
                     <i data-lucide="trash-2"></i>

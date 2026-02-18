@@ -3,11 +3,30 @@
  * Vista: Editar Competencia (editar.php)
  */
 
-// --- Datos de prueba ---
+require_once __DIR__ . '/../../controllers/CompetenciaController.php';
+
+session_start();
+
 $rol = $rol ?? 'coordinador';
-$competencia = $competencia ?? ['comp_id' => 1, 'comp_nombre_corto' => 'Promover salud', 'comp_horas' => 40, 'comp_nombre_unidad_competencia' => 'Promover la salud y seguridad en el trabajo'];
-$errores = $errores ?? [];
-// --- Fin datos de prueba ---
+$errores = [];
+
+// Obtener ID de la competencia desde la URL
+$compId = intval($_GET['id'] ?? 0);
+
+if ($compId <= 0) {
+    $_SESSION['error'] = 'ID de competencia inválido';
+    header('Location: index.php');
+    exit;
+}
+
+// Obtener datos de la competencia
+$competencia = CompetenciaController::obtenerCompetencia($compId);
+
+if (!$competencia) {
+    $_SESSION['error'] = 'Competencia no encontrada';
+    header('Location: index.php');
+    exit;
+}
 
 $title = 'Editar Competencia';
 $breadcrumb = [
@@ -25,7 +44,7 @@ include __DIR__ . '/../layout/header.php';
 
         <div class="form-container">
             <div class="form-card">
-                <form id="formEditarComp" method="POST" action="" novalidate>
+                <form id="formEditarComp" method="POST" action="procesar.php" novalidate>
                     <input type="hidden" name="action" value="update">
                     <input type="hidden" name="comp_id" value="<?php echo htmlspecialchars($competencia['comp_id']); ?>">
 

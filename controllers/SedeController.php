@@ -59,7 +59,7 @@ class SedeController
             return ['success' => true, 'message' => 'Sede eliminada exitosamente'];
         } catch (Exception $e) {
             error_log("Error en eliminarSede: " . $e->getMessage());
-            return ['success' => false, 'message' => 'Error al eliminar la sede'];
+            return ['success' => false, 'message' => 'Error al eliminar la sede: ' . $e->getMessage()];
         }
     }
 }

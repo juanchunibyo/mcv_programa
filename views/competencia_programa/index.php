@@ -3,14 +3,33 @@
  * Vista: Listado de Competencias por Programa (index.php)
  */
 
-// --- Datos de prueba ---
+require_once __DIR__ . '/../../controllers/CompetenciaProgramaController.php';
+require_once __DIR__ . '/../../controllers/ProgramaController.php';
+
+session_start();
+
+// Obtener datos reales de la base de datos
 $rol = $rol ?? 'coordinador';
-$relaciones = $relaciones ?? [
-    ['prog_codigo' => '228106', 'prog_denominacion' => 'Análisis y Desarrollo de Software', 'comp_id' => 1, 'comp_nombre_corto' => 'Promover salud'],
-];
-$mensaje = $mensaje ?? null;
-$error = $error ?? null;
-// --- Fin datos de prueba ---
+$relacionesDB = CompetenciaProgramaController::obtenerTodasRelaciones();
+
+// Enriquecer con nombres de programa
+$relaciones = [];
+foreach ($relacionesDB as $rel) {
+    $progId = $rel['programa_prog_id'];
+    $programa = ProgramaController::obtenerPrograma($progId);
+    
+    $relaciones[] = [
+        'prog_id' => $progId,
+        'prog_codigo' => $programa['prog_codigo'] ?? 'N/A',
+        'prog_denominacion' => $programa['titpro_nombre'] ?? 'Sin nombre',
+        'comp_id' => $rel['competencia_comp_id'],
+        'comp_nombre_corto' => $rel['comp_nombre_corto'] ?? 'N/A'
+    ];
+}
+
+$mensaje = $_SESSION['mensaje'] ?? null;
+$error = $_SESSION['error'] ?? null;
+unset($_SESSION['mensaje'], $_SESSION['error']);
 
 $title = 'Competencias por Programa';
 $breadcrumb = [
@@ -74,7 +93,7 @@ endif; ?>
                                 <div class="table-actions">
                                     <?php if ($rol === 'coordinador'): ?>
                                         <button type="button" class="action-btn delete-btn" title="Desvincular" 
-                                            onclick="confirmDelete('<?php echo $rel['prog_codigo']; ?>', <?php echo $rel['comp_id']; ?>)">
+                                            onclick="confirmDelete(<?php echo $rel['prog_id']; ?>, <?php echo $rel['comp_id']; ?>)">
                                             <i data-lucide="unlink"></i>
                                         </button>
                                     <?php
@@ -116,7 +135,7 @@ endif; ?>
             <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">
                 Cancelar
             </button>
-            <form id="deleteForm" method="POST" action="" style="flex:1;">
+            <form id="deleteForm" method="POST" action="procesar.php" style="flex:1;">
                 <input type="hidden" name="PROGRAMA_prog_id" id="deleteModalProgId">
                 <input type="hidden" name="COMPETENCIA_comp_id" id="deleteModalCompId">
                 <input type="hidden" name="action" value="delete">

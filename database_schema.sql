@@ -252,3 +252,18 @@ CREATE INDEX idx_detalle_asignacion ON detalle_asignacion(asignacion_asig_id);
 -- ============================================
 -- FIN DEL SCRIPT
 -- ============================================
+
+
+-- ============================================
+-- DATOS DE PRUEBA ADICIONALES PARA FICHAS
+-- ============================================
+
+-- Insertar fichas de prueba
+INSERT INTO ficha (programa_prog_id, instructor_inst_id, fich_jornada, coordinacion_coord_id) VALUES
+(1, 1, 'Mañana', 1),
+(2, 2, 'Tarde', 1),
+(3, 1, 'Noche', 2);
+
+-- ============================================
+-- FIN DE DATOS DE PRUEBA
+-- ============================================

@@ -3,17 +3,44 @@
  * Vista: Editar Ficha (editar.php)
  */
 
-// --- Datos de prueba ---
+require_once __DIR__ . '/../../Conexion.php';
+require_once __DIR__ . '/../../controllers/FichaController.php';
+require_once __DIR__ . '/../../controllers/ProgramaController.php';
+require_once __DIR__ . '/../../controllers/InstructorController.php';
+
+session_start();
+
 $rol = $rol ?? 'coordinador';
-$ficha = $ficha ?? ['fich_id' => '228106-1', 'PROGRAMA_prog_id' => '228106', 'INSTRUCTOR_inst_id_lider' => 1, 'fich_jornada' => 'Diurna'];
-$programas = $programas ?? [
-    ['prog_codigo' => '228106', 'prog_denominacion' => 'Análisis y Desarrollo de Software'],
-];
-$instructores = $instructores ?? [
-    ['inst_id' => 1, 'inst_nombre' => 'Juan', 'inst_apellidos' => 'Pérez'],
-];
-$errores = $errores ?? [];
-// --- Fin datos de prueba ---
+$errores = [];
+
+// Obtener ID de la ficha desde la URL
+$fichId = intval($_GET['id'] ?? 0);
+
+if ($fichId <= 0) {
+    $_SESSION['error'] = 'ID de ficha inválido';
+    header('Location: index.php');
+    exit;
+}
+
+// Obtener datos de la ficha
+$ficha = FichaController::obtenerFicha($fichId);
+
+if (!$ficha) {
+    $_SESSION['error'] = 'Ficha no encontrada';
+    header('Location: index.php');
+    exit;
+}
+
+// Cargar programas desde la base de datos
+$programas = ProgramaController::obtenerTodosProgramas();
+
+// Cargar instructores desde la base de datos
+$instructores = InstructorController::obtenerTodosInstructores();
+
+// Cargar coordinaciones desde la base de datos
+$db = Conexion::getConnect();
+$stmtCoord = $db->query("SELECT coord_id, coord_nombre FROM coordinacion ORDER BY coord_nombre");
+$coordinaciones = $stmtCoord->fetchAll(PDO::FETCH_ASSOC);
 
 $title = 'Editar Ficha';
 $breadcrumb = [
@@ -31,98 +58,102 @@ include __DIR__ . '/../layout/header.php';
 
         <div class="form-container">
             <div class="form-card">
-                <form id="formEditarFicha" method="POST" action="" novalidate>
+                <form id="formEditarFicha" method="POST" action="procesar.php" novalidate>
                     <input type="hidden" name="action" value="update">
-                    <!-- Fich_id es PK, pero en FichaModel update usa fich_id en WHERE y SET? Asumiremos PK inmutable o hidden id old -->
-                    <input type="hidden" name="fich_id_pk" value="<?php echo htmlspecialchars($ficha['fich_id']); ?>">
+                    <input type="hidden" name="fich_id" value="<?php echo htmlspecialchars($ficha['fich_id']); ?>">
 
                     <div class="form-group">
-                        <label for="fich_id" class="form-label">
-                             Número de Ficha (No editable)
+                        <label for="programa_id" class="form-label">
+                            Programa de Formación <span class="required">*</span>
                         </label>
-                        <input
-                            type="text"
-                            id="fich_id"
-                            name="fich_id"
-                            class="form-input"
-                            value="<?php echo htmlspecialchars($ficha['fich_id']); ?>"
-                            readonly
-                            style="background-color: var(--gray-100); color: var(--gray-500);"
+                        <select
+                            id="programa_id"
+                            name="programa_id"
+                            class="form-input <?php echo isset($errores['programa_id']) ? 'input-error' : ''; ?>"
+                            required
                         >
+                            <option value="">Seleccione un programa</option>
+                            <?php foreach ($programas as $p): ?>
+                                <option
+                                    value="<?php echo $p['prog_id']; ?>"
+                                    <?php echo ($ficha['programa_prog_id'] == $p['prog_id']) ? 'selected' : ''; ?>
+                                >
+                                    <?php echo htmlspecialchars(($p['titpro_nombre'] ?? 'Sin nombre') . ' - Código: ' . $p['prog_codigo']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <div class="form-error <?php echo isset($errores['programa_id']) ? 'visible' : ''; ?>">
+                            <i data-lucide="alert-circle"></i>
+                            <span><?php echo htmlspecialchars($errores['programa_id'] ?? 'Requerido.'); ?></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="instructor_id" class="form-label">
+                            Instructor Líder <span class="required">*</span>
+                        </label>
+                        <select
+                            id="instructor_id"
+                            name="instructor_id"
+                            class="form-input <?php echo isset($errores['instructor_id']) ? 'input-error' : ''; ?>"
+                            required
+                        >
+                            <option value="">Seleccione un instructor</option>
+                            <?php foreach ($instructores as $inst): ?>
+                                <option
+                                    value="<?php echo $inst['inst_id']; ?>"
+                                    <?php echo ($ficha['instructor_inst_id'] == $inst['inst_id']) ? 'selected' : ''; ?>
+                                >
+                                    <?php echo htmlspecialchars(($inst['inst_nombres'] ?? '') . ' ' . ($inst['inst_apellidos'] ?? '')); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <div class="form-error <?php echo isset($errores['instructor_id']) ? 'visible' : ''; ?>">
+                            <i data-lucide="alert-circle"></i>
+                            <span><?php echo htmlspecialchars($errores['instructor_id'] ?? 'Requerido.'); ?></span>
+                        </div>
                     </div>
 
                     <div class="form-group">
                         <label for="fich_jornada" class="form-label">
-                            Jornada <span class="required">*</span>
+                            Jornada
                         </label>
                         <select
                             id="fich_jornada"
                             name="fich_jornada"
-                            class="form-input <?php echo isset($errores['fich_jornada']) ? 'input-error' : ''; ?>"
-                            required
+                            class="form-input"
                         >
                             <option value="">Seleccione...</option>
-                            <option value="Diurna" <?php echo($ficha['fich_jornada'] == 'Diurna') ? 'selected' : ''; ?>>Diurna</option>
-                            <option value="Nocturna" <?php echo($ficha['fich_jornada'] == 'Nocturna') ? 'selected' : ''; ?>>Nocturna</option>
-                            <option value="Mixta" <?php echo($ficha['fich_jornada'] == 'Mixta') ? 'selected' : ''; ?>>Mixta</option>
+                            <option value="Mañana" <?php echo ($ficha['fich_jornada'] == 'Mañana') ? 'selected' : ''; ?>>Mañana</option>
+                            <option value="Tarde" <?php echo ($ficha['fich_jornada'] == 'Tarde') ? 'selected' : ''; ?>>Tarde</option>
+                            <option value="Noche" <?php echo ($ficha['fich_jornada'] == 'Noche') ? 'selected' : ''; ?>>Noche</option>
+                            <option value="Mixta" <?php echo ($ficha['fich_jornada'] == 'Mixta') ? 'selected' : ''; ?>>Mixta</option>
                         </select>
-                        <div class="form-error <?php echo isset($errores['fich_jornada']) ? 'visible' : ''; ?>">
-                            <i data-lucide="alert-circle"></i>
-                            <span><?php echo htmlspecialchars($errores['fich_jornada'] ?? 'Requerido.'); ?></span>
-                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="PROGRAMA_prog_id" class="form-label">
-                            Programa de Formación <span class="required">*</span>
+                        <label for="coordinacion_id" class="form-label">
+                            Coordinación <span class="required">*</span>
                         </label>
                         <select
-                            id="PROGRAMA_prog_id"
-                            name="PROGRAMA_prog_id"
-                            class="form-input <?php echo isset($errores['PROGRAMA_prog_id']) ? 'input-error' : ''; ?>"
+                            id="coordinacion_id"
+                            name="coordinacion_id"
+                            class="form-input <?php echo isset($errores['coordinacion_id']) ? 'input-error' : ''; ?>"
                             required
                         >
-                            <option value="">Seleccione...</option>
-                            <?php foreach ($programas as $p): ?>
+                            <option value="">Seleccione una coordinación</option>
+                            <?php foreach ($coordinaciones as $coord): ?>
                                 <option
-                                    value="<?php echo $p['prog_codigo']; ?>"
-                                    <?php echo($ficha['PROGRAMA_prog_id'] == $p['prog_codigo']) ? 'selected' : ''; ?>
+                                    value="<?php echo $coord['coord_id']; ?>"
+                                    <?php echo ($ficha['coordinacion_coord_id'] == $coord['coord_id']) ? 'selected' : ''; ?>
                                 >
-                                    <?php echo htmlspecialchars($p['prog_denominacion'] . ' (' . $p['prog_codigo'] . ')'); ?>
+                                    <?php echo htmlspecialchars($coord['coord_nombre']); ?>
                                 </option>
-                            <?php
-endforeach; ?>
+                            <?php endforeach; ?>
                         </select>
-                         <div class="form-error <?php echo isset($errores['PROGRAMA_prog_id']) ? 'visible' : ''; ?>">
+                        <div class="form-error <?php echo isset($errores['coordinacion_id']) ? 'visible' : ''; ?>">
                             <i data-lucide="alert-circle"></i>
-                            <span><?php echo htmlspecialchars($errores['PROGRAMA_prog_id'] ?? 'Requerido.'); ?></span>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="INSTRUCTOR_inst_id_lider" class="form-label">
-                            Instructor Líder <span class="required">*</span>
-                        </label>
-                        <select
-                            id="INSTRUCTOR_inst_id_lider"
-                            name="INSTRUCTOR_inst_id_lider"
-                            class="form-input <?php echo isset($errores['INSTRUCTOR_inst_id_lider']) ? 'input-error' : ''; ?>"
-                            required
-                        >
-                            <option value="">Seleccione...</option>
-                            <?php foreach ($instructores as $inst): ?>
-                                <option
-                                    value="<?php echo $inst['inst_id']; ?>"
-                                    <?php echo($ficha['INSTRUCTOR_inst_id_lider'] == $inst['inst_id']) ? 'selected' : ''; ?>
-                                >
-                                    <?php echo htmlspecialchars($inst['inst_nombre'] . ' ' . $inst['inst_apellidos']); ?>
-                                </option>
-                            <?php
-endforeach; ?>
-                        </select>
-                         <div class="form-error <?php echo isset($errores['INSTRUCTOR_inst_id_lider']) ? 'visible' : ''; ?>">
-                            <i data-lucide="alert-circle"></i>
-                            <span><?php echo htmlspecialchars($errores['INSTRUCTOR_inst_id_lider'] ?? 'Requerido.'); ?></span>
+                            <span><?php echo htmlspecialchars($errores['coordinacion_id'] ?? 'Requerido.'); ?></span>
                         </div>
                     </div>
 

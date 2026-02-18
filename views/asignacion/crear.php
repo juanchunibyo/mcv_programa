@@ -3,23 +3,22 @@
  * Vista: Registrar Asignación (crear.php)
  */
 
-// --- Datos de prueba ---
+require_once __DIR__ . '/../../controllers/FichaController.php';
+require_once __DIR__ . '/../../controllers/InstructorController.php';
+require_once __DIR__ . '/../../controllers/AmbienteController.php';
+require_once __DIR__ . '/../../controllers/CompetenciaController.php';
+
+session_start();
+
 $rol = $rol ?? 'coordinador';
-$errores = $errores ?? [];
-$old = $old ?? [];
-$fichas = $fichas ?? [
-    ['fich_id' => '228106-1'],
-];
-$instructores = $instructores ?? [
-    ['inst_id' => 1, 'inst_nombre' => 'Juan', 'inst_apellidos' => 'Pérez'],
-];
-$ambientes = $ambientes ?? [
-    ['id_ambiente' => 1, 'amb_nombre' => 'Laboratorio 1'],
-];
-$competencias = $competencias ?? [
-    ['comp_id' => 1, 'comp_nombre_corto' => 'Promover salud'],
-];
-// --- Fin datos de prueba ---
+$errores = [];
+$old = [];
+
+// Cargar datos desde la base de datos
+$fichas = FichaController::obtenerTodasFichas();
+$instructores = InstructorController::obtenerTodosInstructores();
+$ambientes = AmbienteController::obtenerTodosAmbientes();
+$competencias = CompetenciaController::obtenerTodasCompetencias();
 
 $title = 'Nueva Asignación';
 $breadcrumb = [
@@ -37,7 +36,7 @@ include __DIR__ . '/../layout/header.php';
 
         <div class="form-container">
             <div class="form-card">
-                <form id="formCrearAsig" method="POST" action="" novalidate>
+                <form id="formCrearAsig" method="POST" action="procesar.php" novalidate>
                     <input type="hidden" name="action" value="create">
 
                     <div class="form-grid">
@@ -86,7 +85,7 @@ endforeach; ?>
                                         value="<?php echo $inst['inst_id']; ?>"
                                         <?php echo(isset($old['INSTRUCTOR_inst_id']) && $old['INSTRUCTOR_inst_id'] == $inst['inst_id']) ? 'selected' : ''; ?>
                                     >
-                                        <?php echo htmlspecialchars($inst['inst_nombre'] . ' ' . $inst['inst_apellidos']); ?>
+                                        <?php echo htmlspecialchars($inst['inst_nombres'] . ' ' . $inst['inst_apellidos']); ?>
                                     </option>
                                 <?php
 endforeach; ?>
@@ -111,8 +110,8 @@ endforeach; ?>
                                 <option value="">Seleccione...</option>
                                 <?php foreach ($ambientes as $amb): ?>
                                     <option
-                                        value="<?php echo $amb['id_ambiente']; ?>"
-                                        <?php echo(isset($old['AMBIENTE_id_ambiente']) && $old['AMBIENTE_id_ambiente'] == $amb['id_ambiente']) ? 'selected' : ''; ?>
+                                        value="<?php echo $amb['amb_id']; ?>"
+                                        <?php echo(isset($old['AMBIENTE_id_ambiente']) && $old['AMBIENTE_id_ambiente'] == $amb['amb_id']) ? 'selected' : ''; ?>
                                     >
                                         <?php echo htmlspecialchars($amb['amb_nombre']); ?>
                                     </option>

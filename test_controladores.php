@@ -37,9 +37,11 @@ echo "<h2>2. Todos los Ambientes</h2>";
 $ambientes = AmbienteController::obtenerTodosAmbientes();
 
 if (!empty($ambientes)) {
-    echo "<table><tr><th>ID</th><th>Nombre</th><th>Sede ID</th></tr>";
+    echo "<table><tr><th>ID</th><th>Nombre</th></tr>";
     foreach ($ambientes as $ambiente) {
-        echo "<tr><td>{$ambiente['amb_id']}</td><td>{$ambiente['amb_nombre']}</td><td>{$ambiente['SEDE_sede_id']}</td></tr>";
+        $ambId = $ambiente['amb_id'] ?? $ambiente['id_ambiente'] ?? 'N/A';
+        $ambNombre = $ambiente['amb_nombre'] ?? 'N/A';
+        echo "<tr><td>{$ambId}</td><td>{$ambNombre}</td></tr>";
     }
     echo "</table>";
 } else {
@@ -71,7 +73,10 @@ $programas = ProgramaController::obtenerTodosProgramas();
 if (!empty($programas)) {
     echo "<table><tr><th>Código</th><th>Denominación</th><th>Tipo</th></tr>";
     foreach ($programas as $programa) {
-        echo "<tr><td>{$programa['prog_codigo']}</td><td>{$programa['prog_denominacion']}</td><td>{$programa['prog_tipo']}</td></tr>";
+        $progCodigo = $programa['prog_codigo'] ?? 'N/A';
+        $progDenom = $programa['prog_denominacion'] ?? 'N/A';
+        $progTipo = $programa['prog_tipo'] ?? 'N/A';
+        echo "<tr><td>{$progCodigo}</td><td>{$progDenom}</td><td>{$progTipo}</td></tr>";
     }
     echo "</table>";
 } else {
@@ -87,7 +92,11 @@ $competencias = CompetenciaController::obtenerTodasCompetencias();
 if (!empty($competencias)) {
     echo "<table><tr><th>ID</th><th>Nombre Corto</th><th>Horas</th><th>Nombre Completo</th></tr>";
     foreach ($competencias as $competencia) {
-        echo "<tr><td>{$competencia['comp_id']}</td><td>{$competencia['comp_nombre_corto']}</td><td>{$competencia['comp_horas']}</td><td>{$competencia['comp_nombre_comp']}</td></tr>";
+        $compId = $competencia['comp_id'] ?? 'N/A';
+        $compCorto = $competencia['comp_nombre_corto'] ?? 'N/A';
+        $compHoras = $competencia['comp_horas'] ?? 'N/A';
+        $compNombre = $competencia['comp_nombre_unidad_competencia'] ?? $competencia['comp_nombre_comp'] ?? 'N/A';
+        echo "<tr><td>{$compId}</td><td>{$compCorto}</td><td>{$compHoras}</td><td>{$compNombre}</td></tr>";
     }
     echo "</table>";
 } else {
@@ -103,7 +112,11 @@ $fichas = FichaController::obtenerTodasFichas();
 if (!empty($fichas)) {
     echo "<table><tr><th>ID</th><th>Programa ID</th><th>Instructor Líder</th><th>Jornada</th></tr>";
     foreach ($fichas as $ficha) {
-        echo "<tr><td>{$ficha['fich_id']}</td><td>{$ficha['PROGRAMA_prog_id']}</td><td>{$ficha['INSTRUCTOR_inst_id_lider']}</td><td>{$ficha['fich_jornada']}</td></tr>";
+        $fichId = $ficha['fich_id'] ?? 'N/A';
+        $progId = $ficha['programa_prog_codigo'] ?? $ficha['PROGRAMA_prog_id'] ?? 'N/A';
+        $instLider = $ficha['instructor_inst_id_lider'] ?? $ficha['INSTRUCTOR_inst_id_lider'] ?? 'N/A';
+        $jornada = $ficha['fich_jornada'] ?? 'N/A';
+        echo "<tr><td>{$fichId}</td><td>{$progId}</td><td>{$instLider}</td><td>{$jornada}</td></tr>";
     }
     echo "</table>";
 } else {

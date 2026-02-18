@@ -1,13 +1,24 @@
 <?php
-/**
- * Vista: Editar Instructor (editar.php)
- */
+require_once __DIR__ . '/../../Conexion.php';
+require_once __DIR__ . '/../../controllers/InstructorController.php';
+session_start();
 
-// --- Datos de prueba ---
-$rol = $rol ?? 'coordinador';
-$instructor = $instructor ?? ['inst_id' => 1, 'inst_nombre' => 'Juan', 'inst_apellidos' => 'Pérez', 'inst_correo' => 'juan@sena.edu.co', 'inst_telefono' => '3001234567'];
-$errores = $errores ?? [];
-// --- Fin datos de prueba ---
+$instId = intval($_GET['id'] ?? 0);
+if ($instId <= 0) {
+    $_SESSION['error'] = 'ID inválido';
+    header('Location: index.php');
+    exit;
+}
+
+$instructor = InstructorController::obtenerInstructor($instId);
+if (!$instructor) {
+    $_SESSION['error'] = 'Instructor no encontrado';
+    header('Location: index.php');
+    exit;
+}
+
+$db = Conexion::getConnect();
+$centros = $db->query("SELECT cent_id, cent_nombre FROM centro_formacion ORDER BY cent_nombre")->fetchAll(PDO::FETCH_ASSOC);
 
 $title = 'Editar Instructor';
 $breadcrumb = [
@@ -15,107 +26,53 @@ $breadcrumb = [
     ['label' => 'Instructores', 'url' => 'index.php'],
     ['label' => 'Editar'],
 ];
-
 include __DIR__ . '/../layout/header.php';
 ?>
 
-        <div class="page-header">
-            <h1 class="page-title">Editar Instructor</h1>
-        </div>
+<div class="page-header"><h1 class="page-title">Editar Instructor</h1></div>
 
-        <div class="form-container">
-            <div class="form-card">
-                <form id="formEditarInst" method="POST" action="" novalidate>
-                    <input type="hidden" name="action" value="update">
-                    <input type="hidden" name="inst_id" value="<?php echo htmlspecialchars($instructor['inst_id']); ?>">
-
-                    <div class="form-group">
-                        <label for="inst_nombre" class="form-label">
-                            Nombres <span class="required">*</span>
-                        </label>
-                        <input
-                            type="text"
-                            id="inst_nombre"
-                            name="inst_nombre"
-                            class="form-input <?php echo isset($errores['inst_nombre']) ? 'input-error' : ''; ?>"
-                            value="<?php echo htmlspecialchars($instructor['inst_nombre']); ?>"
-                            required
-                            maxlength="45"
-                        >
-                        <div class="form-error <?php echo isset($errores['inst_nombre']) ? 'visible' : ''; ?>">
-                            <i data-lucide="alert-circle"></i>
-                            <span><?php echo htmlspecialchars($errores['inst_nombre'] ?? 'Requerido.'); ?></span>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="inst_apellidos" class="form-label">
-                            Apellidos <span class="required">*</span>
-                        </label>
-                        <input
-                            type="text"
-                            id="inst_apellidos"
-                            name="inst_apellidos"
-                            class="form-input <?php echo isset($errores['inst_apellidos']) ? 'input-error' : ''; ?>"
-                            value="<?php echo htmlspecialchars($instructor['inst_apellidos']); ?>"
-                            required
-                            maxlength="45"
-                        >
-                        <div class="form-error <?php echo isset($errores['inst_apellidos']) ? 'visible' : ''; ?>">
-                            <i data-lucide="alert-circle"></i>
-                            <span><?php echo htmlspecialchars($errores['inst_apellidos'] ?? 'Requerido.'); ?></span>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="inst_correo" class="form-label">
-                            Correo Electrónico <span class="required">*</span>
-                        </label>
-                        <input
-                            type="email"
-                            id="inst_correo"
-                            name="inst_correo"
-                            class="form-input <?php echo isset($errores['inst_correo']) ? 'input-error' : ''; ?>"
-                            value="<?php echo htmlspecialchars($instructor['inst_correo']); ?>"
-                            required
-                            maxlength="45"
-                        >
-                        <div class="form-error <?php echo isset($errores['inst_correo']) ? 'visible' : ''; ?>">
-                            <i data-lucide="alert-circle"></i>
-                            <span><?php echo htmlspecialchars($errores['inst_correo'] ?? 'Requerido.'); ?></span>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="inst_telefono" class="form-label">
-                            Teléfono <span class="required">*</span>
-                        </label>
-                        <input
-                            type="text"
-                            id="inst_telefono"
-                            name="inst_telefono"
-                            class="form-input <?php echo isset($errores['inst_telefono']) ? 'input-error' : ''; ?>"
-                            value="<?php echo htmlspecialchars($instructor['inst_telefono']); ?>"
-                            required
-                            maxlength="45"
-                        >
-                        <div class="form-error <?php echo isset($errores['inst_telefono']) ? 'visible' : ''; ?>">
-                            <i data-lucide="alert-circle"></i>
-                            <span><?php echo htmlspecialchars($errores['inst_telefono'] ?? 'Requerido.'); ?></span>
-                        </div>
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">
-                            <i data-lucide="save"></i>
-                            Actualizar Instructor
-                        </button>
-                        <a href="index.php" class="btn btn-secondary">
-                            Cancelar
-                        </a>
-                    </div>
-                </form>
+<div class="form-container">
+    <div class="form-card">
+        <form method="POST" action="procesar.php">
+            <input type="hidden" name="action" value="update">
+            <input type="hidden" name="inst_id" value="<?= $instructor['inst_id'] ?>">
+            
+            <div class="form-group">
+                <label class="form-label">Nombres <span class="required">*</span></label>
+                <input type="text" name="inst_nombres" class="form-input" value="<?= htmlspecialchars($instructor['inst_nombres']) ?>" required maxlength="45">
             </div>
-        </div>
+            
+            <div class="form-group">
+                <label class="form-label">Apellidos <span class="required">*</span></label>
+                <input type="text" name="inst_apellidos" class="form-input" value="<?= htmlspecialchars($instructor['inst_apellidos']) ?>" required maxlength="45">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Correo</label>
+                <input type="email" name="inst_correo" class="form-input" value="<?= htmlspecialchars($instructor['inst_correo'] ?? '') ?>" maxlength="45">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Teléfono</label>
+                <input type="tel" name="inst_telefono" class="form-input" value="<?= htmlspecialchars($instructor['inst_telefono'] ?? '') ?>">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Centro de Formación</label>
+                <select name="centro_formacion_id" class="form-input">
+                    <option value="">Seleccione (opcional)</option>
+                    <?php foreach ($centros as $c): ?>
+                        <option value="<?= $c['cent_id'] ?>" <?= ($instructor['centro_formacion_cent_id'] == $c['cent_id']) ? 'selected' : '' ?>><?= htmlspecialchars($c['cent_nombre']) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary"><i data-lucide="save"></i> Actualizar</button>
+                <a href="index.php" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
 
 <?php include __DIR__ . '/../layout/footer.php'; ?>

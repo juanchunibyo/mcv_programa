@@ -10,6 +10,19 @@ require_once __DIR__ . '/../model/CompetenciaModel.php';
 class CalendarioController
 {
     /**
+     * Obtiene asignaciones por mes para el calendario
+     */
+    public static function obtenerAsignacionesPorMes($mes, $anio)
+    {
+        try {
+            return self::getAsignacionesCalendario($mes, $anio);
+        } catch (Exception $e) {
+            error_log("Error en obtenerAsignacionesPorMes: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
      * Obtiene todas las asignaciones con sus detalles para el calendario
      */
     public static function getAsignacionesCalendario($mes = null, $anio = null)

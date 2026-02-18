@@ -3,16 +3,27 @@
  * Vista: Asociar Competencia a Programa (crear.php)
  */
 
-// --- Datos de prueba ---
+require_once __DIR__ . '/../../controllers/ProgramaController.php';
+require_once __DIR__ . '/../../controllers/CompetenciaController.php';
+
+session_start();
+
 $rol = $rol ?? 'coordinador';
-$errores = $errores ?? [];
-$programas = $programas ?? [
-    ['prog_codigo' => '228106', 'prog_denominacion' => 'Análisis y Desarrollo de Software'],
-];
-$competencias = $competencias ?? [
-    ['comp_id' => 1, 'comp_nombre_corto' => 'Promover salud'],
-];
-// --- Fin datos de prueba ---
+$errores = [];
+
+// Cargar programas y competencias desde la base de datos
+$programasDB = ProgramaController::obtenerTodosProgramas();
+$competencias = CompetenciaController::obtenerTodasCompetencias();
+
+// Formatear programas con denominación
+$programas = [];
+foreach ($programasDB as $p) {
+    $programas[] = [
+        'prog_id' => $p['prog_id'],
+        'prog_codigo' => $p['prog_codigo'],
+        'prog_denominacion' => $p['titpro_nombre'] ?? 'Sin nombre'
+    ];
+}
 
 $title = 'Asociar Competencia';
 $breadcrumb = [
@@ -30,7 +41,7 @@ include __DIR__ . '/../layout/header.php';
 
         <div class="form-container">
             <div class="form-card">
-                <form id="formAsociar" method="POST" action="" novalidate>
+                <form id="formAsociar" method="POST" action="procesar.php" novalidate>
                     <input type="hidden" name="action" value="create">
 
                     <div class="form-group">
@@ -45,8 +56,8 @@ include __DIR__ . '/../layout/header.php';
                         >
                             <option value="">Seleccione...</option>
                             <?php foreach ($programas as $p): ?>
-                                <option value="<?php echo $p['prog_codigo']; ?>">
-                                    <?php echo htmlspecialchars($p['prog_denominacion']); ?>
+                                <option value="<?php echo $p['prog_id']; ?>">
+                                    <?php echo htmlspecialchars($p['prog_codigo'] . ' - ' . $p['prog_denominacion']); ?>
                                 </option>
                             <?php
 endforeach; ?>

@@ -55,7 +55,7 @@ class CompetenciaModel
     //crud
     public function create()
     {
-        $query = "INSERT INTO competencia (comp_nombre_corto, comp_horas, comp_nombre_unidad_competencia) 
+        $query = "INSERT INTO COMPETENCIA (comp_nombre_corto, comp_horas, comp_nombre_unidad_competencia) 
         VALUES (:comp_nombre_corto, :comp_horas, :comp_nombre_unidad_competencia)";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':comp_nombre_corto', $this->comp_nombre_corto);
@@ -66,7 +66,7 @@ class CompetenciaModel
     }
     public function read()
     {
-        $sql = "SELECT * FROM competencia WHERE comp_id = :comp_id";
+        $sql = "SELECT * FROM COMPETENCIA WHERE comp_id = :comp_id";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([':comp_id' => $this->comp_id]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -74,14 +74,14 @@ class CompetenciaModel
 
     public function readAll()
     {
-        $sql = "SELECT * FROM competencia";
+        $sql = "SELECT * FROM COMPETENCIA";
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     public function update()
     {
-        $query = "UPDATE competencia SET comp_nombre_corto = :comp_nombre_corto, comp_horas = :comp_horas, comp_nombre_unidad_competencia = :comp_nombre_unidad_competencia WHERE comp_id = :comp_id";
+        $query = "UPDATE COMPETENCIA SET comp_nombre_corto = :comp_nombre_corto, comp_horas = :comp_horas, comp_nombre_unidad_competencia = :comp_nombre_unidad_competencia WHERE comp_id = :comp_id";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':comp_nombre_corto', $this->comp_nombre_corto);
         $stmt->bindParam(':comp_horas', $this->comp_horas);
@@ -92,7 +92,7 @@ class CompetenciaModel
     }
     public function delete()
     {
-        $query = "DELETE FROM competencia WHERE comp_id = :comp_id";
+        $query = "DELETE FROM COMPETENCIA WHERE comp_id = :comp_id";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':comp_id', $this->comp_id);
         $stmt->execute();

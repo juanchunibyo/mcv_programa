@@ -52,7 +52,7 @@ class InstructorController
                 $datos['inst_apellidos'],
                 $datos['inst_correo'],
                 $datos['inst_telefono'],
-                $datos['centro_formacion_cent_id'] ?? null
+                $datos['centro_formacion_id'] ?? null
             );
             
             $instId = $instructor->create();
@@ -84,7 +84,7 @@ class InstructorController
                 $datos['inst_apellidos'],
                 $datos['inst_correo'],
                 $datos['inst_telefono'],
-                $datos['centro_formacion_cent_id'] ?? null
+                $datos['centro_formacion_id'] ?? null
             );
             
             $instructor->update();

@@ -3,11 +3,11 @@
  * Vista: Registrar Competencia (crear.php)
  */
 
-// --- Datos de prueba ---
+session_start();
+
 $rol = $rol ?? 'coordinador';
-$errores = $errores ?? [];
-$old = $old ?? [];
-// --- Fin datos de prueba ---
+$errores = [];
+$old = [];
 
 $title = 'Registrar Competencia';
 $breadcrumb = [
@@ -25,7 +25,7 @@ include __DIR__ . '/../layout/header.php';
 
         <div class="form-container">
             <div class="form-card">
-                <form id="formCrearComp" method="POST" action="" novalidate>
+                <form id="formCrearComp" method="POST" action="procesar.php" novalidate>
                     <input type="hidden" name="action" value="create">
 
                     <div class="form-group">

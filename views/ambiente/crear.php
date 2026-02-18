@@ -1,20 +1,26 @@
 <?php
 /**
  * Vista: Registrar Ambiente (crear.php)
- *
- * Variables esperadas:
- *   $sedes  — Array de sedes para el select
  */
 
-// --- Datos de prueba ---
+require_once __DIR__ . '/../../controllers/SedeController.php';
+
+session_start();
+
 $rol = $rol ?? 'coordinador';
 $errores = $errores ?? [];
 $old = $old ?? [];
-$sedes = $sedes ?? [
-    ['sede_id' => 1, 'sede_nombre' => 'Centro de Gestión Industrial'],
-    ['sede_id' => 2, 'sede_nombre' => 'Centro de Tecnologías del Transporte'],
-];
-// --- Fin datos de prueba ---
+
+// Cargar sedes reales de la base de datos
+$sedes = SedeController::obtenerTodasSedes();
+
+// Si no hay sedes, mostrar advertencia pero permitir continuar
+$advertencia = null;
+if (empty($sedes)) {
+    $advertencia = 'No hay sedes disponibles. Crea una sede primero o selecciona "Sin sede" temporalmente.';
+    // Agregar opción "Sin sede"
+    $sedes = [['sede_id' => 0, 'sede_nombre' => 'Sin sede (temporal)']];
+}
 
 $title = 'Registrar Ambiente';
 $breadcrumb = [
@@ -30,9 +36,16 @@ include __DIR__ . '/../layout/header.php';
             <h1 class="page-title">Registrar Ambiente</h1>
         </div>
 
+        <?php if ($advertencia): ?>
+            <div class="alert alert-warning">
+                <i data-lucide="alert-triangle"></i>
+                <?php echo htmlspecialchars($advertencia); ?>
+            </div>
+        <?php endif; ?>
+
         <div class="form-container">
             <div class="form-card">
-                <form id="formCrearAmb" method="POST" action="" novalidate>
+                <form id="formCrearAmb" method="POST" action="procesar.php" novalidate>
                     <input type="hidden" name="action" value="create">
 
                     <div class="form-group">
@@ -56,29 +69,44 @@ include __DIR__ . '/../layout/header.php';
                     </div>
 
                     <div class="form-group">
-                        <label for="Sede_sede_id" class="form-label">
+                        <label for="amb_capacidad" class="form-label">
+                            Capacidad
+                        </label>
+                        <input
+                            type="number"
+                            id="amb_capacidad"
+                            name="amb_capacidad"
+                            class="form-input"
+                            placeholder="Ej: 30"
+                            value="<?php echo htmlspecialchars($old['amb_capacidad'] ?? ''); ?>"
+                            min="0"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sede_id" class="form-label">
                             Sede <span class="required">*</span>
                         </label>
                         <select
-                            id="Sede_sede_id"
-                            name="Sede_sede_id"
-                            class="form-input <?php echo isset($errores['Sede_sede_id']) ? 'input-error' : ''; ?>"
+                            id="sede_id"
+                            name="sede_id"
+                            class="form-input <?php echo isset($errores['sede_id']) ? 'input-error' : ''; ?>"
                             required
                         >
                             <option value="">Seleccione una Sede</option>
                             <?php foreach ($sedes as $sede): ?>
                                 <option
                                     value="<?php echo $sede['sede_id']; ?>"
-                                    <?php echo(isset($old['Sede_sede_id']) && $old['Sede_sede_id'] == $sede['sede_id']) ? 'selected' : ''; ?>
+                                    <?php echo(isset($old['sede_id']) && $old['sede_id'] == $sede['sede_id']) ? 'selected' : ''; ?>
                                 >
                                     <?php echo htmlspecialchars($sede['sede_nombre']); ?>
                                 </option>
                             <?php
 endforeach; ?>
                         </select>
-                         <div class="form-error <?php echo isset($errores['Sede_sede_id']) ? 'visible' : ''; ?>">
+                         <div class="form-error <?php echo isset($errores['sede_id']) ? 'visible' : ''; ?>">
                             <i data-lucide="alert-circle"></i>
-                            <span><?php echo htmlspecialchars($errores['Sede_sede_id'] ?? 'Requerido.'); ?></span>
+                            <span><?php echo htmlspecialchars($errores['sede_id'] ?? 'Requerido.'); ?></span>
                         </div>
                     </div>
 

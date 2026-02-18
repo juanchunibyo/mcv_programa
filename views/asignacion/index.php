@@ -3,31 +3,17 @@
  * Vista: Listado de Asignaciones (index.php)
  */
 
-// --- Datos de prueba ---
+require_once __DIR__ . '/../../controllers/AsignacionController.php';
+
+session_start();
+
+// Obtener datos reales de la base de datos
 $rol = $rol ?? 'coordinador';
-$asignaciones = $asignaciones ?? [
-    [
-        'asig_id' => 1,
-        'fich_id' => '2758392',
-        'inst_nombre' => 'Juan Pérez',
-        'amb_nombre' => 'Laboratorio 101',
-        'asig_fecha_ini' => '2026-02-15',
-        'asig_fecha_fin' => '2026-06-15',
-        'comp_nombre_corto' => 'Programación'
-    ],
-    [
-        'asig_id' => 2,
-        'fich_id' => '2758393',
-        'inst_nombre' => 'María García',
-        'amb_nombre' => 'Aula 202',
-        'asig_fecha_ini' => '2026-02-20',
-        'asig_fecha_fin' => '2026-06-20',
-        'comp_nombre_corto' => 'Bases de Datos'
-    ],
-];
-$mensaje = $mensaje ?? null;
-$error = $error ?? null;
-// --- Fin datos de prueba ---
+$asignaciones = AsignacionController::obtenerTodasAsignaciones();
+
+$mensaje = $_SESSION['mensaje'] ?? null;
+$error = $_SESSION['error'] ?? null;
+unset($_SESSION['mensaje'], $_SESSION['error']);
 
 $title = 'Gestión de Asignaciones';
 $breadcrumb = [
@@ -78,11 +64,11 @@ endif; ?>
                         <?php foreach ($asignaciones as $asig): ?>
                         <tr>
                             <td><span class="table-id"><?php echo htmlspecialchars($asig['asig_id']); ?></span></td>
-                            <td><?php echo htmlspecialchars($asig['fich_id']); ?></td>
-                            <td><?php echo htmlspecialchars($asig['inst_nombre']); ?></td>
-                            <td><?php echo htmlspecialchars($asig['amb_nombre']); ?></td>
+                            <td><?php echo htmlspecialchars($asig['fich_id'] ?? 'N/A'); ?></td>
+                            <td><?php echo htmlspecialchars($asig['inst_nombres'] ?? 'N/A'); ?></td>
+                            <td><?php echo htmlspecialchars($asig['amb_nombre'] ?? 'N/A'); ?></td>
                             <td><?php echo htmlspecialchars($asig['asig_fecha_ini'] . ' / ' . $asig['asig_fecha_fin']); ?></td>
-                            <td><?php echo htmlspecialchars($asig['comp_nombre_corto']); ?></td>
+                            <td><?php echo htmlspecialchars($asig['comp_nombre_corto'] ?? 'N/A'); ?></td>
                             <td>
                                 <div class="table-actions">
                                     <a href="ver.php?id=<?php echo $asig['asig_id']; ?>" class="action-btn view-btn" title="Ver detalle">
@@ -135,7 +121,7 @@ endif; ?>
             <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">
                 Cancelar
             </button>
-            <form id="deleteForm" method="POST" action="" style="flex:1;">
+            <form id="deleteForm" method="POST" action="procesar.php" style="flex:1;">
                 <input type="hidden" name="asig_id" id="deleteModalId">
                 <input type="hidden" name="action" value="delete">
                 <button type="submit" class="btn btn-danger" style="width:100%;justify-content:center;">

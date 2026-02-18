@@ -3,40 +3,29 @@
  * Vista: Detalle de Ficha (ver.php)
  */
 
+require_once __DIR__ . '/../../controllers/FichaController.php';
+
+session_start();
+
 $rol = $rol ?? 'coordinador';
 
 // Obtener ID de la ficha desde la URL
-$fichaId = $_GET['id'] ?? '2758392';
+$fichId = intval($_GET['id'] ?? 0);
 
-// Datos de prueba para diferentes fichas
-$fichas = [
-    '2758392' => [
-        'fich_id' => '2758392',
-        'fich_nombre' => 'Tecnología en Análisis y Desarrollo de Software',
-        'fich_jornada' => 'Diurna',
-        'prog_id' => 1,
-        'inst_id' => 1,
-        'fich_foto' => 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&q=80'
-    ],
-    '2758393' => [
-        'fich_id' => '2758393',
-        'fich_nombre' => 'Técnico en Sistemas',
-        'fich_jornada' => 'Nocturna',
-        'prog_id' => 2,
-        'inst_id' => 2,
-        'fich_foto' => 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&q=80'
-    ],
-    '2758394' => [
-        'fich_id' => '2758394',
-        'fich_nombre' => 'Tecnología en Gestión de Redes',
-        'fich_jornada' => 'Mixta',
-        'prog_id' => 3,
-        'inst_id' => 3,
-        'fich_foto' => 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=800&q=80'
-    ]
-];
+if ($fichId <= 0) {
+    $_SESSION['error'] = 'ID de ficha inválido';
+    header('Location: index.php');
+    exit;
+}
 
-$ficha = $fichas[$fichaId] ?? $fichas['2758392'];
+// Obtener datos reales de la ficha
+$ficha = FichaController::obtenerFicha($fichId);
+
+if (!$ficha) {
+    $_SESSION['error'] = 'Ficha no encontrada';
+    header('Location: index.php');
+    exit;
+}
 
 $title = 'Detalle de Ficha';
 $breadcrumb = [
@@ -117,20 +106,24 @@ include __DIR__ . '/../layout/header.php';
 <div style="max-width: 800px;">
     <div style="background: white; border-radius: 16px; padding: 32px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
         <span class="ficha-id-badge">Ficha: <?= htmlspecialchars($ficha['fich_id']) ?></span>
-        <h2 class="ficha-title"><?= htmlspecialchars($ficha['fich_nombre']) ?></h2>
+        <h2 class="ficha-title"><?= htmlspecialchars($ficha['titpro_nombre'] ?? 'Sin programa') ?></h2>
 
         <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin-top: 1.5rem;">
             <div style="margin-bottom: 1rem;">
                 <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.25rem;">Jornada</div>
-                <div style="font-size: 1rem; color: #1a1a1a; font-weight: 500;"><?= htmlspecialchars($ficha['fich_jornada']) ?></div>
+                <div style="font-size: 1rem; color: #1a1a1a; font-weight: 500;"><?= htmlspecialchars($ficha['fich_jornada'] ?? 'N/A') ?></div>
             </div>
             <div style="margin-bottom: 1rem;">
-                <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.25rem;">ID Programa</div>
-                <div style="font-size: 1rem; color: #1a1a1a; font-weight: 500;"><?= htmlspecialchars($ficha['prog_id']) ?></div>
+                <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.25rem;">Código de Programa</div>
+                <div style="font-size: 1rem; color: #1a1a1a; font-weight: 500;"><?= htmlspecialchars($ficha['prog_codigo'] ?? 'N/A') ?></div>
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.25rem;">Instructor Líder</div>
+                <div style="font-size: 1rem; color: #1a1a1a; font-weight: 500;"><?= htmlspecialchars(($ficha['inst_nombres'] ?? '') . ' ' . ($ficha['inst_apellidos'] ?? '')) ?></div>
             </div>
             <div>
-                <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.25rem;">ID Instructor Líder</div>
-                <div style="font-size: 1rem; color: #1a1a1a; font-weight: 500;"><?= htmlspecialchars($ficha['inst_id']) ?></div>
+                <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.25rem;">Coordinación</div>
+                <div style="font-size: 1rem; color: #1a1a1a; font-weight: 500;"><?= htmlspecialchars($ficha['coord_nombre'] ?? 'N/A') ?></div>
             </div>
         </div>
 

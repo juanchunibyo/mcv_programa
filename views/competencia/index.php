@@ -3,15 +3,17 @@
  * Vista: Listado de Competencias (index.php)
  */
 
-// --- Datos de prueba ---
+require_once __DIR__ . '/../../controllers/CompetenciaController.php';
+
+session_start();
+
+// Obtener datos reales de la base de datos
 $rol = $rol ?? 'coordinador';
-$competencias = $competencias ?? [
-    ['comp_id' => 1, 'comp_nombre_corto' => 'Promover salud', 'comp_horas' => 40, 'comp_nombre_unidad_competencia' => 'Promover la salud y seguridad en el trabajo'],
-    ['comp_id' => 2, 'comp_nombre_corto' => 'Ética', 'comp_horas' => 60, 'comp_nombre_unidad_competencia' => 'Promover la interacción idónea'],
-];
-$mensaje = $mensaje ?? null;
-$error = $error ?? null;
-// --- Fin datos de prueba ---
+$competencias = CompetenciaController::obtenerTodasCompetencias();
+
+$mensaje = $_SESSION['mensaje'] ?? null;
+$error = $_SESSION['error'] ?? null;
+unset($_SESSION['mensaje'], $_SESSION['error']);
 
 $title = 'Gestión de Competencias';
 $breadcrumb = [
@@ -132,7 +134,7 @@ endif; ?>
             <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">
                 Cancelar
             </button>
-            <form id="deleteForm" method="POST" action="" style="flex:1;">
+            <form id="deleteForm" method="POST" action="procesar.php" style="flex:1;">
                 <input type="hidden" name="comp_id" id="deleteModalId">
                 <input type="hidden" name="action" value="delete">
                 <button type="submit" class="btn btn-danger" style="width:100%;justify-content:center;">

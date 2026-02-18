@@ -3,6 +3,13 @@
  * Vista: Calendario de Programación Académica
  */
 
+require_once __DIR__ . '/../../controllers/CalendarioController.php';
+require_once __DIR__ . '/../../controllers/SedeController.php';
+require_once __DIR__ . '/../../controllers/FichaController.php';
+require_once __DIR__ . '/../../controllers/InstructorController.php';
+require_once __DIR__ . '/../../controllers/AmbienteController.php';
+require_once __DIR__ . '/../../controllers/CompetenciaController.php';
+
 $rol = $rol ?? 'coordinador';
 $title = 'Calendario de Programación';
 $breadcrumb = [
@@ -14,74 +21,54 @@ $breadcrumb = [
 $mesActual = date('n'); // 1-12
 $anioActual = date('Y');
 
-// Datos de prueba para el calendario
-$asignaciones = [
-    '2026-02-15' => [
-        [
-            'asig_id' => 1,
-            'instructor' => 'Juan Pérez',
-            'ficha' => '2758392',
-            'ambiente' => 'Lab 101',
-            'competencia' => 'Programación',
-            'hora_ini' => '08:00:00',
-            'hora_fin' => '12:00:00',
-            'detalle_id' => 1
-        ]
-    ],
-    '2026-02-20' => [
-        [
-            'asig_id' => 2,
-            'instructor' => 'María García',
-            'ficha' => '2758393',
-            'ambiente' => 'Aula 202',
-            'competencia' => 'Bases de Datos',
-            'hora_ini' => '14:00:00',
-            'hora_fin' => '18:00:00',
-            'detalle_id' => 2
-        ]
-    ]
-];
+// Obtener asignaciones reales de la base de datos
+$asignaciones = CalendarioController::obtenerAsignacionesPorMes($mesActual, $anioActual);
 
-// Datos de prueba para filtros
+// Obtener datos para filtros
 $filtros = [
-    'sedes' => [
-        ['sede_id' => 1, 'sede_nombre' => 'Sede Centro'],
-        ['sede_id' => 2, 'sede_nombre' => 'Sede Norte']
-    ],
-    'fichas' => [
+    'sedes' => SedeController::obtenerTodasSedes(),
+    'fichas' => FichaController::obtenerTodasFichas(),
+    'instructores' => InstructorController::obtenerTodosInstructores()
+];
+
+// Datos para el formulario
+$fichas = FichaController::obtenerTodasFichas();
+$instructores = InstructorController::obtenerTodosInstructores();
+$ambientes = AmbienteController::obtenerTodosAmbientes();
+$competencias = CompetenciaController::obtenerTodasCompetencias();
+
+// Si no hay datos en la BD, usar datos de prueba
+if (empty($fichas)) {
+    $fichas = [
         ['fich_id' => '2758392'],
-        ['fich_id' => '2758393']
-    ],
-    'instructores' => [
+        ['fich_id' => '2758393'],
+        ['fich_id' => '2758394']
+    ];
+}
+
+if (empty($instructores)) {
+    $instructores = [
         ['inst_id' => 1, 'inst_nombres' => 'Juan', 'inst_apellidos' => 'Pérez'],
-        ['inst_id' => 2, 'inst_nombres' => 'María', 'inst_apellidos' => 'García']
-    ]
-];
+        ['inst_id' => 2, 'inst_nombres' => 'María', 'inst_apellidos' => 'García'],
+        ['inst_id' => 3, 'inst_nombres' => 'Carlos', 'inst_apellidos' => 'López']
+    ];
+}
 
-// Datos de prueba para el formulario
-$fichas = [
-    ['fich_id' => '2758392'],
-    ['fich_id' => '2758393'],
-    ['fich_id' => '2758394']
-];
+if (empty($ambientes)) {
+    $ambientes = [
+        ['amb_id' => 1, 'amb_nombre' => 'Laboratorio 101'],
+        ['amb_id' => 2, 'amb_nombre' => 'Aula 202'],
+        ['amb_id' => 3, 'amb_nombre' => 'Sala 303']
+    ];
+}
 
-$instructores = [
-    ['inst_id' => 1, 'inst_nombres' => 'Juan', 'inst_apellidos' => 'Pérez'],
-    ['inst_id' => 2, 'inst_nombres' => 'María', 'inst_apellidos' => 'García'],
-    ['inst_id' => 3, 'inst_nombres' => 'Carlos', 'inst_apellidos' => 'López']
-];
-
-$ambientes = [
-    ['amb_id' => 1, 'amb_nombre' => 'Laboratorio 101'],
-    ['amb_id' => 2, 'amb_nombre' => 'Aula 202'],
-    ['amb_id' => 3, 'amb_nombre' => 'Sala 303']
-];
-
-$competencias = [
-    ['comp_id' => 1, 'comp_nombre_corto' => 'Programación'],
-    ['comp_id' => 2, 'comp_nombre_corto' => 'Bases de Datos'],
-    ['comp_id' => 3, 'comp_nombre_corto' => 'Redes']
-];
+if (empty($competencias)) {
+    $competencias = [
+        ['comp_id' => 1, 'comp_nombre_corto' => 'Programación'],
+        ['comp_id' => 2, 'comp_nombre_corto' => 'Bases de Datos'],
+        ['comp_id' => 3, 'comp_nombre_corto' => 'Redes']
+    ];
+}
 
 include __DIR__ . '/../layout/header.php';
 ?>
@@ -298,7 +285,6 @@ include __DIR__ . '/../layout/header.php';
         flex-wrap: wrap;
     }
 
-    /* Estilos para el calendario mensual */
     .calendar-grid {
         display: grid;
         grid-template-columns: repeat(7, 1fr);
@@ -308,6 +294,14 @@ include __DIR__ . '/../layout/header.php';
         border-radius: 12px;
         overflow: hidden;
         margin-top: 20px;
+    }
+
+    #calendarDays {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 1px;
+        background: rgba(0, 0, 0, 0.08);
+        margin-top: 1px;
     }
 
     .calendar-day-header {
@@ -844,25 +838,16 @@ include __DIR__ . '/../layout/header.php';
     document.getElementById('eventForm').addEventListener('submit', function(e) {
         e.preventDefault();
         
-        // Por ahora solo mostrar mensaje de éxito
-        const ficha = document.getElementById('eventFicha').options[document.getElementById('eventFicha').selectedIndex].text;
-        const instructor = document.getElementById('eventInstructor').options[document.getElementById('eventInstructor').selectedIndex].text;
-        const fecha = document.getElementById('eventDate').value;
-        const horaInicio = document.getElementById('eventTimeStart').value;
-        
-        alert('✓ Asignación creada exitosamente\n\nFicha: ' + ficha + '\nInstructor: ' + instructor + '\nFecha: ' + fecha + '\nHora: ' + horaInicio);
-        closeEventModal();
-        
-        // Cuando tengas la BD, descomenta esto:
-        /*
         const formData = new FormData(this);
+        formData.append('action', 'create');
+        
         const btnSave = this.querySelector('.btn-save');
         const originalText = btnSave.textContent;
         
         btnSave.disabled = true;
         btnSave.textContent = 'Guardando...';
         
-        fetch('/mvccc/mvc_programa/controllers/guardar_asignacion.php', {
+        fetch('procesar.php', {
             method: 'POST',
             body: formData
         })
@@ -884,7 +869,6 @@ include __DIR__ . '/../layout/header.php';
             btnSave.disabled = false;
             btnSave.textContent = originalText;
         });
-        */
     });
 
     // Cerrar modal al hacer click fuera

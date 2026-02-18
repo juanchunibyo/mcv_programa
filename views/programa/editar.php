@@ -3,15 +3,40 @@
  * Vista: Editar Programa (editar.php)
  */
 
-// --- Datos de prueba ---
+require_once __DIR__ . '/../../Conexion.php';
+require_once __DIR__ . '/../../controllers/ProgramaController.php';
+require_once __DIR__ . '/../../controllers/SedeController.php';
+
+session_start();
+
 $rol = $rol ?? 'coordinador';
-$programa = $programa ?? ['prog_codigo' => '228106', 'prog_denominacion' => 'Análisis y Desarrollo de Software', 'prog_tipo' => 'Titulada', 'TIT_PROGRAMA_tibro_id' => 1];
-$titulos = $titulos ?? [
-    ['tibro_id' => 1, 'tibro_nombre' => 'Tecnólogo'],
-    ['tibro_id' => 2, 'tibro_nombre' => 'Técnico'],
-];
 $errores = $errores ?? [];
-// --- Fin datos de prueba ---
+
+// Obtener ID del programa desde la URL
+$progId = intval($_GET['id'] ?? 0);
+
+if ($progId <= 0) {
+    $_SESSION['error'] = 'ID de programa inválido';
+    header('Location: index.php');
+    exit;
+}
+
+// Obtener datos del programa
+$programa = ProgramaController::obtenerPrograma($progId);
+
+if (!$programa) {
+    $_SESSION['error'] = 'Programa no encontrado';
+    header('Location: index.php');
+    exit;
+}
+
+// Cargar títulos de programa desde la base de datos
+$db = Conexion::getConnect();
+$stmtTitulos = $db->query("SELECT titpro_id, titpro_nombre FROM titulo_programa ORDER BY titpro_nombre");
+$titulos = $stmtTitulos->fetchAll(PDO::FETCH_ASSOC);
+
+// Cargar sedes desde la base de datos
+$sedes = SedeController::obtenerTodasSedes();
 
 $title = 'Editar Programa';
 $breadcrumb = [
@@ -29,90 +54,90 @@ include __DIR__ . '/../layout/header.php';
 
         <div class="form-container">
             <div class="form-card">
-                <form id="formEditarProg" method="POST" action="" novalidate>
+                <form id="formEditarProg" method="POST" action="procesar.php" novalidate>
                     <input type="hidden" name="action" value="update">
-                    <!-- Código es PK, se envía como hidden para el WHERE, pero también se muestra readonly -->
-                    <input type="hidden" name="prog_codigo_pk" value="<?php echo htmlspecialchars($programa['prog_codigo']); ?>">
+                    <input type="hidden" name="prog_id" value="<?php echo htmlspecialchars($programa['prog_id']); ?>">
 
                     <div class="form-group">
                         <label for="prog_codigo" class="form-label">
-                            Código del Programa (No editable)
+                            Código del Programa <span class="required">*</span>
                         </label>
                         <input
-                            type="text"
+                            type="number"
                             id="prog_codigo"
                             name="prog_codigo"
-                            class="form-input"
+                            class="form-input <?php echo isset($errores['prog_codigo']) ? 'input-error' : ''; ?>"
+                            placeholder="Ej: 228106"
                             value="<?php echo htmlspecialchars($programa['prog_codigo']); ?>"
-                            readonly
-                            style="background-color: var(--gray-100); color: var(--gray-500);"
+                            required
                         >
+                        <div class="form-error <?php echo isset($errores['prog_codigo']) ? 'visible' : ''; ?>">
+                            <i data-lucide="alert-circle"></i>
+                            <span><?php echo htmlspecialchars($errores['prog_codigo'] ?? 'Requerido.'); ?></span>
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="prog_denominacion" class="form-label">
-                            Denominación <span class="required">*</span>
+                        <label for="tit_programa_id" class="form-label">
+                            Título del Programa <span class="required">*</span>
                         </label>
-                        <input
-                            type="text"
-                            id="prog_denominacion"
-                            name="prog_denominacion"
-                            class="form-input <?php echo isset($errores['prog_denominacion']) ? 'input-error' : ''; ?>"
-                            value="<?php echo htmlspecialchars($programa['prog_denominacion']); ?>"
+                        <select
+                            id="tit_programa_id"
+                            name="tit_programa_id"
+                            class="form-input <?php echo isset($errores['tit_programa_id']) ? 'input-error' : ''; ?>"
                             required
-                            maxlength="200"
                         >
-                        <div class="form-error <?php echo isset($errores['prog_denominacion']) ? 'visible' : ''; ?>">
+                            <option value="">Seleccione un título</option>
+                            <?php foreach ($titulos as $titulo): ?>
+                                <option
+                                    value="<?php echo $titulo['titpro_id']; ?>"
+                                    <?php echo ($programa['tit_programa_titpro_id'] == $titulo['titpro_id']) ? 'selected' : ''; ?>
+                                >
+                                    <?php echo htmlspecialchars($titulo['titpro_nombre']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <div class="form-error <?php echo isset($errores['tit_programa_id']) ? 'visible' : ''; ?>">
                             <i data-lucide="alert-circle"></i>
-                            <span><?php echo htmlspecialchars($errores['prog_denominacion'] ?? 'Requerido.'); ?></span>
+                            <span><?php echo htmlspecialchars($errores['tit_programa_id'] ?? 'Requerido.'); ?></span>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="prog_tipo" class="form-label">
-                            Tipo de Formación <span class="required">*</span>
+                            Tipo de Programa
                         </label>
                         <select
                             id="prog_tipo"
                             name="prog_tipo"
-                            class="form-input <?php echo isset($errores['prog_tipo']) ? 'input-error' : ''; ?>"
-                            required
+                            class="form-input"
                         >
                             <option value="">Seleccione...</option>
-                            <option value="Titulada" <?php echo($programa['prog_tipo'] == 'Titulada') ? 'selected' : ''; ?>>Titulada</option>
-                            <option value="Complementaria" <?php echo($programa['prog_tipo'] == 'Complementaria') ? 'selected' : ''; ?>>Complementaria</option>
+                            <option value="Tecnólogo" <?php echo ($programa['prog_tipo'] == 'Tecnólogo') ? 'selected' : ''; ?>>Tecnólogo</option>
+                            <option value="Técnico" <?php echo ($programa['prog_tipo'] == 'Técnico') ? 'selected' : ''; ?>>Técnico</option>
+                            <option value="Especialización" <?php echo ($programa['prog_tipo'] == 'Especialización') ? 'selected' : ''; ?>>Especialización</option>
                         </select>
-                        <div class="form-error <?php echo isset($errores['prog_tipo']) ? 'visible' : ''; ?>">
-                            <i data-lucide="alert-circle"></i>
-                            <span><?php echo htmlspecialchars($errores['prog_tipo'] ?? 'Requerido.'); ?></span>
-                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="TIT_PROGRAMA_tibro_id" class="form-label">
-                            Nivel de Formación <span class="required">*</span>
+                        <label for="sede_id" class="form-label">
+                            Sede
                         </label>
                         <select
-                            id="TIT_PROGRAMA_tibro_id"
-                            name="TIT_PROGRAMA_tibro_id"
-                            class="form-input <?php echo isset($errores['TIT_PROGRAMA_tibro_id']) ? 'input-error' : ''; ?>"
-                            required
+                            id="sede_id"
+                            name="sede_id"
+                            class="form-input"
                         >
-                            <option value="">Seleccione...</option>
-                            <?php foreach ($titulos as $titulo): ?>
+                            <option value="">Seleccione una sede (opcional)</option>
+                            <?php foreach ($sedes as $sede): ?>
                                 <option
-                                    value="<?php echo $titulo['tibro_id']; ?>"
-                                    <?php echo($programa['TIT_PROGRAMA_tibro_id'] == $titulo['tibro_id']) ? 'selected' : ''; ?>
+                                    value="<?php echo $sede['sede_id']; ?>"
+                                    <?php echo ($programa['sede_sede_id'] == $sede['sede_id']) ? 'selected' : ''; ?>
                                 >
-                                    <?php echo htmlspecialchars($titulo['tibro_nombre']); ?>
+                                    <?php echo htmlspecialchars($sede['sede_nombre']); ?>
                                 </option>
-                            <?php
-endforeach; ?>
+                            <?php endforeach; ?>
                         </select>
-                        <div class="form-error <?php echo isset($errores['TIT_PROGRAMA_tibro_id']) ? 'visible' : ''; ?>">
-                            <i data-lucide="alert-circle"></i>
-                            <span><?php echo htmlspecialchars($errores['TIT_PROGRAMA_tibro_id'] ?? 'Requerido.'); ?></span>
-                        </div>
                     </div>
 
                     <div class="form-actions">
