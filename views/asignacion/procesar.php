@@ -20,15 +20,23 @@ switch ($action) {
             'instructor_id' => intval($_POST['INSTRUCTOR_inst_id'] ?? 0),
             'fecha_inicio' => trim($_POST['asig_fecha_ini'] ?? ''),
             'fecha_fin' => trim($_POST['asig_fecha_fin'] ?? ''),
-            'ficha_id' => trim($_POST['FICHA_fich_id'] ?? ''),
+            'ficha_id' => intval($_POST['FICHA_fich_id'] ?? 0),
             'ambiente_id' => intval($_POST['AMBIENTE_id_ambiente'] ?? 0),
             'competencia_id' => intval($_POST['COMPETENCIA_comp_id'] ?? 0)
         ];
         
-        if ($datos['instructor_id'] <= 0 || empty($datos['ficha_id']) || $datos['ambiente_id'] <= 0) {
+        if ($datos['instructor_id'] <= 0 || $datos['ficha_id'] <= 0 || $datos['ambiente_id'] <= 0) {
             $_SESSION['error'] = 'Debe completar todos los campos obligatorios';
             header('Location: crear.php');
             exit;
+        }
+        
+        // Convertir fechas a formato timestamp para PostgreSQL
+        if (!empty($datos['fecha_inicio'])) {
+            $datos['fecha_inicio'] = $datos['fecha_inicio'] . ' 00:00:00';
+        }
+        if (!empty($datos['fecha_fin'])) {
+            $datos['fecha_fin'] = $datos['fecha_fin'] . ' 23:59:59';
         }
         
         // Verificar conflictos de horario en el mismo ambiente
@@ -55,6 +63,42 @@ switch ($action) {
             $_SESSION['error'] = $resultado['message'];
             header('Location: crear.php');
         }
+        break;
+        
+    case 'update':
+        $asigId = intval($_POST['asig_id'] ?? 0);
+        $datos = [
+            'instructor_id' => intval($_POST['INSTRUCTOR_inst_id'] ?? 0),
+            'fecha_inicio' => trim($_POST['asig_fecha_ini'] ?? ''),
+            'fecha_fin' => trim($_POST['asig_fecha_fin'] ?? ''),
+            'ficha_id' => intval($_POST['FICHA_fich_id'] ?? 0),
+            'ambiente_id' => intval($_POST['AMBIENTE_id_ambiente'] ?? 0),
+            'competencia_id' => intval($_POST['COMPETENCIA_comp_id'] ?? 0)
+        ];
+        
+        if ($asigId <= 0 || $datos['instructor_id'] <= 0 || $datos['ficha_id'] <= 0 || $datos['ambiente_id'] <= 0) {
+            $_SESSION['error'] = 'Datos inválidos';
+            header('Location: index.php');
+            exit;
+        }
+        
+        // Convertir fechas a formato timestamp para PostgreSQL
+        if (!empty($datos['fecha_inicio'])) {
+            $datos['fecha_inicio'] = $datos['fecha_inicio'] . ' 00:00:00';
+        }
+        if (!empty($datos['fecha_fin'])) {
+            $datos['fecha_fin'] = $datos['fecha_fin'] . ' 23:59:59';
+        }
+        
+        $resultado = AsignacionController::actualizarAsignacion($asigId, $datos);
+        
+        if ($resultado['success']) {
+            $_SESSION['mensaje'] = $resultado['message'];
+        } else {
+            $_SESSION['error'] = $resultado['message'];
+        }
+        
+        header('Location: index.php');
         break;
         
     case 'delete':

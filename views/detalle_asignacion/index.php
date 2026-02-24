@@ -70,8 +70,8 @@ endif; ?>
                         <tr>
                             <td><span class="table-id"><?php echo htmlspecialchars($det['detasig_id']); ?></span></td>
                             <td><?php echo htmlspecialchars($det['asignacion_asig_id']); ?></td>
-                            <td><?php echo htmlspecialchars($det['detasig_hora_ini']); ?></td>
-                            <td><?php echo htmlspecialchars($det['detasig_hora_fin']); ?></td>
+                            <td><?php echo htmlspecialchars(date('H:i', strtotime($det['detasig_hora_ini']))); ?></td>
+                            <td><?php echo htmlspecialchars(date('H:i', strtotime($det['detasig_hora_fin']))); ?></td>
                             <td>
                                 <div class="table-actions">
                                     <a href="ver.php?id=<?php echo $det['detasig_id']; ?>" class="action-btn view-btn" title="Ver detalle">

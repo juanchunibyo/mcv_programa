@@ -26,6 +26,12 @@ include __DIR__ . '/../layout/header.php';
 
         <div class="page-header">
             <h1 class="page-title">Asignación de Ambientes</h1>
+            <?php if ($rol === 'coordinador'): ?>
+                <a href="crear.php" class="btn btn-primary">
+                    <i data-lucide="plus"></i>
+                    Nueva Asignación
+                </a>
+            <?php endif; ?>
         </div>
 
         <!-- Alerts -->
@@ -67,7 +73,13 @@ endif; ?>
                             <td><?php echo htmlspecialchars($asig['fich_id'] ?? 'N/A'); ?></td>
                             <td><?php echo htmlspecialchars($asig['inst_nombres'] ?? 'N/A'); ?></td>
                             <td><?php echo htmlspecialchars($asig['amb_nombre'] ?? 'N/A'); ?></td>
-                            <td><?php echo htmlspecialchars($asig['asig_fecha_ini'] . ' / ' . $asig['asig_fecha_fin']); ?></td>
+                            <td>
+                                <?php 
+                                $fechaIni = date('d/m/Y', strtotime($asig['asig_fecha_ini']));
+                                $fechaFin = date('d/m/Y', strtotime($asig['asig_fecha_fin']));
+                                echo htmlspecialchars($fechaIni . ' - ' . $fechaFin); 
+                                ?>
+                            </td>
                             <td><?php echo htmlspecialchars($asig['comp_nombre_corto'] ?? 'N/A'); ?></td>
                             <td>
                                 <div class="table-actions">

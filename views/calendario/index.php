@@ -190,6 +190,19 @@ include __DIR__ . '/../layout/header.php';
         overflow: hidden;
     }
 
+    /* Vista Diaria */
+    .day-view {
+        display: grid;
+        grid-template-columns: 80px 1fr;
+        gap: 1px;
+        background: rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        overflow: hidden;
+        max-height: 600px;
+        overflow-y: auto;
+    }
+
     .time-slot,
     .day-header,
     .event-cell {
@@ -477,6 +490,30 @@ include __DIR__ . '/../layout/header.php';
         margin-bottom: 20px;
     }
 
+    .time-inputs-row {
+        display: flex;
+        align-items: flex-end;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .time-input-group {
+        flex: 1;
+        margin-bottom: 0;
+    }
+
+    .time-separator {
+        display: flex;
+        align-items: center;
+        padding-bottom: 10px;
+    }
+
+    .time-input {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-size: 15px;
+        letter-spacing: 0.5px;
+    }
+
     .event-form-label {
         display: block;
         font-size: 13px;
@@ -570,6 +607,12 @@ include __DIR__ . '/../layout/header.php';
             </button>
         </div>
 
+        <div class="view-buttons">
+            <button class="view-btn active" data-view="month" onclick="changeView('month')">Mes</button>
+            <button class="view-btn" data-view="week" onclick="changeView('week')">Semana</button>
+            <button class="view-btn" data-view="day" onclick="changeView('day')">Día</button>
+        </div>
+
         <div class="calendar-filters">
             <select class="filter-select" id="filterSede">
                 <option value="">Todas las Sedes</option>
@@ -596,18 +639,29 @@ include __DIR__ . '/../layout/header.php';
         </div>
     </div>
 
-    <div class="calendar-grid">
-        <div class="calendar-day-header">Lun</div>
-        <div class="calendar-day-header">Mar</div>
-        <div class="calendar-day-header">Mié</div>
-        <div class="calendar-day-header">Jue</div>
-        <div class="calendar-day-header">Vie</div>
-        <div class="calendar-day-header">Sáb</div>
-        <div class="calendar-day-header">Dom</div>
-        <!-- Los días se generan aquí con JavaScript -->
+    <!-- Vista Mensual -->
+    <div id="monthView" class="calendar-view">
+        <div class="calendar-grid">
+            <div class="calendar-day-header">Lun</div>
+            <div class="calendar-day-header">Mar</div>
+            <div class="calendar-day-header">Mié</div>
+            <div class="calendar-day-header">Jue</div>
+            <div class="calendar-day-header">Vie</div>
+            <div class="calendar-day-header">Sáb</div>
+            <div class="calendar-day-header">Dom</div>
+        </div>
+        <div id="calendarDays" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: rgba(0, 0, 0, 0.08); margin-top: 1px;"></div>
     </div>
-    
-    <div id="calendarDays" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: rgba(0, 0, 0, 0.08); margin-top: 1px;"></div>
+
+    <!-- Vista Semanal -->
+    <div id="weekView" class="calendar-view" style="display: none;">
+        <div class="week-view" id="weekGrid"></div>
+    </div>
+
+    <!-- Vista Diaria -->
+    <div id="dayView" class="calendar-view" style="display: none;">
+        <div class="day-view" id="dayGrid"></div>
+    </div>
 
     <div class="legend">
         <div class="legend-item">
@@ -641,14 +695,26 @@ include __DIR__ . '/../layout/header.php';
                 <input type="date" class="event-form-input" id="eventDate" name="fecha" required>
             </div>
 
-            <div class="event-form-group">
-                <label class="event-form-label">Hora Inicio <span style="color: red;">*</span></label>
-                <input type="time" class="event-form-input" id="eventTimeStart" name="hora_inicio" required>
-            </div>
+            <div class="time-inputs-row">
+                <div class="event-form-group time-input-group">
+                    <label class="event-form-label">
+                        <i data-lucide="clock" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle;"></i>
+                        Hora Inicio <span style="color: red;">*</span>
+                    </label>
+                    <input type="time" class="event-form-input time-input" id="eventTimeStart" name="hora_inicio" required>
+                </div>
 
-            <div class="event-form-group">
-                <label class="event-form-label">Hora Fin <span style="color: red;">*</span></label>
-                <input type="time" class="event-form-input" id="eventTimeEnd" name="hora_fin" required>
+                <div class="time-separator">
+                    <i data-lucide="arrow-right" style="width: 20px; height: 20px; color: #a0aec0;"></i>
+                </div>
+
+                <div class="event-form-group time-input-group">
+                    <label class="event-form-label">
+                        <i data-lucide="clock" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle;"></i>
+                        Hora Fin <span style="color: red;">*</span>
+                    </label>
+                    <input type="time" class="event-form-input time-input" id="eventTimeEnd" name="hora_fin" required>
+                </div>
             </div>
 
             <div class="event-form-group">
@@ -709,9 +775,184 @@ include __DIR__ . '/../layout/header.php';
 
 <script>
     let currentDate = new Date();
+    let currentView = 'month';
 
     // Datos reales de asignaciones desde PHP
     const events = <?= json_encode($asignaciones) ?>;
+    
+    // Debug: Ver estructura de eventos
+    console.log('Eventos cargados:', events);
+    if (Object.keys(events).length > 0) {
+        const primeraFecha = Object.keys(events)[0];
+        console.log('Ejemplo de evento:', events[primeraFecha][0]);
+    }
+
+    // Cambiar vista
+    function changeView(view) {
+        currentView = view;
+        
+        // Actualizar botones activos
+        document.querySelectorAll('.view-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.dataset.view === view) {
+                btn.classList.add('active');
+            }
+        });
+        
+        // Mostrar/ocultar vistas
+        document.getElementById('monthView').style.display = view === 'month' ? 'block' : 'none';
+        document.getElementById('weekView').style.display = view === 'week' ? 'block' : 'none';
+        document.getElementById('dayView').style.display = view === 'day' ? 'block' : 'none';
+        
+        // Renderizar vista correspondiente
+        if (view === 'month') {
+            renderCalendar();
+        } else if (view === 'week') {
+            renderWeekView();
+        } else if (view === 'day') {
+            renderDayView();
+        }
+    }
+
+    // Renderizar vista semanal
+    function renderWeekView() {
+        const weekGrid = document.getElementById('weekGrid');
+        weekGrid.innerHTML = '';
+        
+        // Obtener inicio de la semana (lunes)
+        const startOfWeek = new Date(currentDate);
+        const day = startOfWeek.getDay();
+        const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1);
+        startOfWeek.setDate(diff);
+        
+        // Crear encabezados de días
+        const dayNames = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+        weekGrid.appendChild(createEmptyCell()); // Esquina superior izquierda
+        
+        for (let i = 0; i < 7; i++) {
+            const date = new Date(startOfWeek);
+            date.setDate(startOfWeek.getDate() + i);
+            const header = document.createElement('div');
+            header.className = 'day-header';
+            if (isToday(date)) header.classList.add('today');
+            header.innerHTML = `
+                <div>${dayNames[i]}</div>
+                <div class="day-date">${date.getDate()}/${date.getMonth() + 1}</div>
+            `;
+            weekGrid.appendChild(header);
+        }
+        
+        // Crear franjas horarias (6:00 AM - 10:00 PM)
+        for (let hour = 6; hour <= 22; hour++) {
+            // Columna de hora
+            const timeSlot = document.createElement('div');
+            timeSlot.className = 'time-slot';
+            timeSlot.textContent = `${hour.toString().padStart(2, '0')}:00`;
+            weekGrid.appendChild(timeSlot);
+            
+            // Celdas para cada día
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(startOfWeek);
+                date.setDate(startOfWeek.getDate() + i);
+                const cell = createEventCell(date, hour);
+                weekGrid.appendChild(cell);
+            }
+        }
+        
+        lucide.createIcons();
+    }
+
+    // Renderizar vista diaria
+    function renderDayView() {
+        const dayGrid = document.getElementById('dayGrid');
+        dayGrid.innerHTML = '';
+        
+        // Encabezado del día
+        const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+        const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+        
+        dayGrid.appendChild(createEmptyCell());
+        const header = document.createElement('div');
+        header.className = 'day-header';
+        if (isToday(currentDate)) header.classList.add('today');
+        header.innerHTML = `
+            <div>${dayNames[currentDate.getDay()]}</div>
+            <div class="day-date">${currentDate.getDate()} ${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}</div>
+        `;
+        dayGrid.appendChild(header);
+        
+        // Crear franjas horarias (6:00 AM - 10:00 PM)
+        for (let hour = 6; hour <= 22; hour++) {
+            const timeSlot = document.createElement('div');
+            timeSlot.className = 'time-slot';
+            timeSlot.textContent = `${hour.toString().padStart(2, '0')}:00`;
+            dayGrid.appendChild(timeSlot);
+            
+            const cell = createEventCell(currentDate, hour);
+            dayGrid.appendChild(cell);
+        }
+        
+        lucide.createIcons();
+    }
+
+    // Crear celda de evento
+    function createEventCell(date, hour) {
+        const cell = document.createElement('div');
+        cell.className = 'event-cell';
+        
+        const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        
+        if (events[dateKey]) {
+            events[dateKey].forEach(event => {
+                // Verificar si el evento tiene hora de inicio
+                if (event.hora_ini && event.hora_ini !== null) {
+                    // Extraer la hora del formato HH:MM o HH:MM:SS
+                    const eventHour = parseInt(event.hora_ini.split(':')[0]);
+                    
+                    if (eventHour === hour) {
+                        const eventBlock = document.createElement('div');
+                        eventBlock.className = 'event-block ficha';
+                        
+                        // Formatear horas
+                        const horaIni = event.hora_ini.substring(0, 5);
+                        const horaFin = event.hora_fin ? event.hora_fin.substring(0, 5) : 'N/A';
+                        
+                        eventBlock.innerHTML = `
+                            <div class="event-time">${horaIni} - ${horaFin}</div>
+                            <div class="event-title">Ficha ${event.ficha}</div>
+                        `;
+                        eventBlock.title = `Instructor: ${event.instructor}\nAmbiente: ${event.ambiente}\nHorario: ${horaIni} - ${horaFin}`;
+                        eventBlock.onclick = (e) => {
+                            e.stopPropagation();
+                            mostrarDetalleEvento(event);
+                        };
+                        cell.appendChild(eventBlock);
+                    }
+                }
+            });
+        }
+        
+        cell.onclick = () => {
+            openEventModal(date.getFullYear(), date.getMonth(), date.getDate());
+        };
+        
+        return cell;
+    }
+
+    // Crear celda vacía
+    function createEmptyCell() {
+        const cell = document.createElement('div');
+        cell.className = 'time-slot';
+        return cell;
+    }
+
+    // Verificar si es hoy
+    function isToday(date) {
+        const today = new Date();
+        return date.getDate() === today.getDate() &&
+               date.getMonth() === today.getMonth() &&
+               date.getFullYear() === today.getFullYear();
+    }
 
     function renderCalendar() {
         const year = currentDate.getFullYear();
@@ -785,11 +1026,14 @@ include __DIR__ . '/../layout/header.php';
                     eventEl.className = 'event-item event-ficha';
                     
                     // Formatear hora
-                    const horaIni = event.hora_ini ? event.hora_ini.substring(0, 5) : '';
+                    const horaIni = event.hora_ini ? event.hora_ini.substring(0, 5) : 'Sin hora';
                     const horaFin = event.hora_fin ? event.hora_fin.substring(0, 5) : '';
                     
-                    eventEl.textContent = `${horaIni} - Ficha ${event.ficha}`;
-                    eventEl.title = `Instructor: ${event.instructor}\nAmbiente: ${event.ambiente}\nHorario: ${horaIni} - ${horaFin}`;
+                    // Mostrar rango de horas si existe hora fin
+                    const horario = horaFin ? `${horaIni}-${horaFin}` : horaIni;
+                    
+                    eventEl.textContent = `${horario} Ficha ${event.ficha}`;
+                    eventEl.title = `Instructor: ${event.instructor}\nAmbiente: ${event.ambiente}\nHorario: ${horaIni} - ${horaFin || 'N/A'}`;
                     
                     eventEl.onclick = (e) => {
                         e.stopPropagation();
@@ -812,13 +1056,56 @@ include __DIR__ . '/../layout/header.php';
     }
 
     function previousMonth() {
-        currentDate.setMonth(currentDate.getMonth() - 1);
-        renderCalendar();
+        if (currentView === 'month') {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar();
+        } else if (currentView === 'week') {
+            currentDate.setDate(currentDate.getDate() - 7);
+            renderWeekView();
+        } else if (currentView === 'day') {
+            currentDate.setDate(currentDate.getDate() - 1);
+            renderDayView();
+        }
+        updateMonthDisplay();
     }
 
     function nextMonth() {
-        currentDate.setMonth(currentDate.getMonth() + 1);
-        renderCalendar();
+        if (currentView === 'month') {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
+        } else if (currentView === 'week') {
+            currentDate.setDate(currentDate.getDate() + 7);
+            renderWeekView();
+        } else if (currentView === 'day') {
+            currentDate.setDate(currentDate.getDate() + 1);
+            renderDayView();
+        }
+        updateMonthDisplay();
+    }
+
+    function updateMonthDisplay() {
+        const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                           'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+        
+        if (currentView === 'month') {
+            document.getElementById('currentMonth').textContent = 
+                `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+        } else if (currentView === 'week') {
+            const startOfWeek = new Date(currentDate);
+            const day = startOfWeek.getDay();
+            const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1);
+            startOfWeek.setDate(diff);
+            
+            const endOfWeek = new Date(startOfWeek);
+            endOfWeek.setDate(startOfWeek.getDate() + 6);
+            
+            document.getElementById('currentMonth').textContent = 
+                `${startOfWeek.getDate()} ${monthNames[startOfWeek.getMonth()]} - ${endOfWeek.getDate()} ${monthNames[endOfWeek.getMonth()]} ${currentDate.getFullYear()}`;
+        } else if (currentView === 'day') {
+            const dayNames = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+            document.getElementById('currentMonth').textContent = 
+                `${dayNames[currentDate.getDay()]}, ${currentDate.getDate()} ${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+        }
     }
 
     function openEventModal(year, month, day) {
@@ -894,6 +1181,163 @@ Horario: ${horaIni} - ${horaFin}
         `;
         
         alert(mensaje.trim());
+    }
+
+    // Variables de filtro
+    let filtroSede = '';
+    let filtroFicha = '';
+    let filtroInstructor = '';
+
+    // Obtener opciones únicas de fichas e instructores por sede
+    function obtenerOpcionesPorSede(sedeId) {
+        const fichas = new Set();
+        const instructores = new Map();
+        
+        // Restaurar eventos originales para obtener todas las opciones
+        const eventosParaAnalizar = window.eventosOriginales || events;
+        
+        for (const fecha in eventosParaAnalizar) {
+            eventosParaAnalizar[fecha].forEach(event => {
+                // Si hay filtro de sede, solo incluir eventos de esa sede
+                if (!sedeId || (event.sede_id && parseInt(event.sede_id) === parseInt(sedeId))) {
+                    if (event.ficha) {
+                        fichas.add(event.ficha);
+                    }
+                    if (event.instructor_id && event.instructor) {
+                        instructores.set(event.instructor_id, event.instructor);
+                    }
+                }
+            });
+        }
+        
+        return {
+            fichas: Array.from(fichas).sort(),
+            instructores: Array.from(instructores.entries()).sort((a, b) => a[1].localeCompare(b[1]))
+        };
+    }
+
+    // Actualizar opciones de filtros en cascada
+    function actualizarOpcionesFiltros() {
+        const opciones = obtenerOpcionesPorSede(filtroSede);
+        
+        // Actualizar dropdown de fichas
+        const selectFicha = document.getElementById('filterFicha');
+        const fichaActual = selectFicha.value;
+        selectFicha.innerHTML = '<option value="">Todas las Fichas</option>';
+        
+        opciones.fichas.forEach(ficha => {
+            const option = document.createElement('option');
+            option.value = ficha;
+            option.textContent = `Ficha ${ficha}`;
+            if (ficha == fichaActual) option.selected = true;
+            selectFicha.appendChild(option);
+        });
+        
+        // Si la ficha actual no está en las opciones, resetear
+        if (fichaActual && !opciones.fichas.includes(fichaActual)) {
+            filtroFicha = '';
+        }
+        
+        // Actualizar dropdown de instructores
+        const selectInstructor = document.getElementById('filterInstructor');
+        const instructorActual = selectInstructor.value;
+        selectInstructor.innerHTML = '<option value="">Todos los Instructores</option>';
+        
+        opciones.instructores.forEach(([id, nombre]) => {
+            const option = document.createElement('option');
+            option.value = id;
+            option.textContent = nombre;
+            if (id == instructorActual) option.selected = true;
+            selectInstructor.appendChild(option);
+        });
+        
+        // Si el instructor actual no está en las opciones, resetear
+        if (instructorActual && !opciones.instructores.find(([id]) => id == instructorActual)) {
+            filtroInstructor = '';
+        }
+    }
+
+    // Función para filtrar eventos
+    function filtrarEventos() {
+        const eventosFiltrados = {};
+        
+        for (const fecha in events) {
+            const eventosDia = events[fecha].filter(event => {
+                // Filtrar por sede (comparación numérica)
+                if (filtroSede && event.sede_id && parseInt(event.sede_id) !== parseInt(filtroSede)) {
+                    return false;
+                }
+                
+                // Filtrar por ficha (comparación de string)
+                if (filtroFicha && event.ficha && String(event.ficha) !== String(filtroFicha)) {
+                    return false;
+                }
+                
+                // Filtrar por instructor (comparación numérica)
+                if (filtroInstructor && event.instructor_id && parseInt(event.instructor_id) !== parseInt(filtroInstructor)) {
+                    return false;
+                }
+                
+                return true;
+            });
+            
+            if (eventosDia.length > 0) {
+                eventosFiltrados[fecha] = eventosDia;
+            }
+        }
+        
+        return eventosFiltrados;
+    }
+
+    // Event listeners para los filtros
+    document.getElementById('filterSede').addEventListener('change', function() {
+        filtroSede = this.value;
+        console.log('Filtro Sede:', filtroSede);
+        
+        // Actualizar opciones de fichas e instructores según la sede
+        actualizarOpcionesFiltros();
+        
+        actualizarVista();
+    });
+
+    document.getElementById('filterFicha').addEventListener('change', function() {
+        filtroFicha = this.value;
+        console.log('Filtro Ficha:', filtroFicha);
+        actualizarVista();
+    });
+
+    document.getElementById('filterInstructor').addEventListener('change', function() {
+        filtroInstructor = this.value;
+        console.log('Filtro Instructor:', filtroInstructor);
+        actualizarVista();
+    });
+
+    // Función para actualizar la vista con filtros
+    function actualizarVista() {
+        // Guardar eventos originales si no están guardados
+        if (!window.eventosOriginales) {
+            window.eventosOriginales = JSON.parse(JSON.stringify(events));
+        }
+        
+        // Restaurar eventos originales
+        Object.keys(events).forEach(key => delete events[key]);
+        Object.assign(events, window.eventosOriginales);
+        
+        // Aplicar filtros
+        const eventosFiltrados = filtrarEventos();
+        
+        // Reemplazar events con los filtrados
+        Object.keys(events).forEach(key => delete events[key]);
+        Object.assign(events, eventosFiltrados);
+        
+        // Re-renderizar la vista actual
+        if (currentView === 'month') {
+            renderCalendar();
+        } else if (currentView === 'week') {
+            renderWeekView();
+        } else if (currentView === 'day') {
+            renderDayView();
+        }
     }
 
     // Inicializar calendario

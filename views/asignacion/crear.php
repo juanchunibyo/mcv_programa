@@ -203,4 +203,51 @@ endforeach; ?>
             </div>
         </div>
 
+<script>
+// Mapeo de fichas a instructores
+const fichaInstructorMap = {
+    <?php foreach ($fichas as $f): ?>
+        <?php echo $f['fich_id']; ?>: <?php echo $f['instructor_inst_id']; ?>,
+    <?php endforeach; ?>
+};
+
+// Guardar todas las opciones de instructores
+const instructorSelect = document.getElementById('INSTRUCTOR_inst_id');
+const allInstructorOptions = Array.from(instructorSelect.options);
+
+// Cuando se selecciona una ficha, filtrar y autoseleccionar el instructor
+document.getElementById('FICHA_fich_id').addEventListener('change', function() {
+    const fichaId = parseInt(this.value);
+    
+    // Limpiar el select
+    instructorSelect.innerHTML = '<option value="">Seleccione...</option>';
+    
+    if (fichaId && fichaInstructorMap[fichaId]) {
+        const instructorId = fichaInstructorMap[fichaId];
+        
+        // Solo agregar la opción del instructor correspondiente
+        allInstructorOptions.forEach(option => {
+            if (parseInt(option.value) === instructorId) {
+                instructorSelect.appendChild(option.cloneNode(true));
+            }
+        });
+        
+        // Autoseleccionar el instructor
+        instructorSelect.value = instructorId;
+        
+        // Hacer el campo readonly visualmente
+        instructorSelect.style.backgroundColor = '#f3f4f6';
+        instructorSelect.disabled = false;
+    } else {
+        // Si no hay ficha seleccionada, mostrar todos los instructores
+        allInstructorOptions.forEach(option => {
+            if (option.value !== '') {
+                instructorSelect.appendChild(option.cloneNode(true));
+            }
+        });
+        instructorSelect.style.backgroundColor = '';
+    }
+});
+</script>
+
 <?php include __DIR__ . '/../layout/footer.php'; ?>

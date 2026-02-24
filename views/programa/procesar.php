@@ -16,8 +16,16 @@ $action = $_POST['action'] ?? '';
 
 switch ($action) {
     case 'create':
+        // Generar código aleatorio único de 6 dígitos
+        $programas = ProgramaController::obtenerTodosProgramas();
+        $codigosExistentes = array_column($programas, 'prog_codigo');
+        
+        do {
+            $prog_codigo = rand(100000, 999999);
+        } while (in_array($prog_codigo, $codigosExistentes));
+        
         $datos = [
-            'prog_codigo' => intval($_POST['prog_codigo'] ?? 0),
+            'prog_codigo' => $prog_codigo,
             'tit_programa_id' => intval($_POST['tit_programa_id'] ?? 0),
             'prog_tipo' => trim($_POST['prog_tipo'] ?? ''),
             'sede_id' => intval($_POST['sede_id'] ?? 0)
@@ -28,32 +36,16 @@ switch ($action) {
             $datos['sede_id'] = null;
         }
         
-        if ($datos['prog_codigo'] <= 0) {
-            $_SESSION['error'] = 'El código del programa es obligatorio';
-            header('Location: crear.php');
-            exit;
-        }
-        
         if ($datos['tit_programa_id'] <= 0) {
             $_SESSION['error'] = 'El título del programa es obligatorio';
             header('Location: crear.php');
             exit;
         }
         
-        // Verificar si el código ya existe
-        $programas = ProgramaController::obtenerTodosProgramas();
-        foreach ($programas as $prog) {
-            if ($prog['prog_codigo'] == $datos['prog_codigo']) {
-                $_SESSION['error'] = 'El código de programa ' . $datos['prog_codigo'] . ' ya existe';
-                header('Location: crear.php');
-                exit;
-            }
-        }
-        
         $resultado = ProgramaController::crearPrograma($datos);
         
         if ($resultado['success']) {
-            $_SESSION['mensaje'] = $resultado['message'];
+            $_SESSION['mensaje'] = 'Programa creado exitosamente con código: ' . $prog_codigo;
             header('Location: index.php');
         } else {
             $_SESSION['error'] = $resultado['message'];

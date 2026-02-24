@@ -25,11 +25,6 @@ include __DIR__ . '/../layout/header.php';
             <input type="hidden" name="action" value="create">
             
             <div class="form-group">
-                <label class="form-label">Código del Programa <span class="required">*</span></label>
-                <input type="number" name="prog_codigo" class="form-input" placeholder="Ej: 228106" required>
-            </div>
-            
-            <div class="form-group">
                 <label class="form-label">Nivel de Formación <span class="required">*</span></label>
                 <select name="tit_programa_id" class="form-input" required>
                     <option value="">Seleccione un nivel</option>

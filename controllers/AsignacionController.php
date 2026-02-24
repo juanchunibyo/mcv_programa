@@ -67,18 +67,20 @@ class AsignacionController
             $db = Conexion::getConnect();
             
             $sql = "SELECT 
-                        a.ASIG_ID as asig_id,
+                        a.asig_id,
                         a.asig_fecha_ini,
                         a.asig_fecha_fin,
+                        a.ambiente_amb_id,
                         f.fich_id,
-                        CONCAT(i.inst_nombres, ' ', i.inst_apellidos) as inst_nombre,
+                        i.inst_nombres,
+                        i.inst_apellidos,
                         amb.amb_nombre,
                         c.comp_nombre_corto
                     FROM asignacion a
-                    LEFT JOIN ficha f ON a.FICHA_fich_id = f.fich_id
-                    LEFT JOIN instructor i ON a.INSTRUCTOR_inst_id = i.inst_id
-                    LEFT JOIN ambiente amb ON a.AMBIENTE_amb_id = amb.amb_id
-                    LEFT JOIN competencia c ON a.COMPETENCIA_comp_id = c.comp_id
+                    LEFT JOIN ficha f ON a.ficha_fich_id = f.fich_id
+                    LEFT JOIN instructor i ON a.instructor_inst_id = i.inst_id
+                    LEFT JOIN ambiente amb ON a.ambiente_amb_id = amb.amb_id
+                    LEFT JOIN competencia c ON a.competencia_comp_id = c.comp_id
                     ORDER BY a.asig_fecha_ini DESC";
             
             $stmt = $db->query($sql);
@@ -91,6 +93,46 @@ class AsignacionController
     }
     
     /**
+     * Actualizar una asignación existente
+     */
+    public static function actualizarAsignacion($asigId, $datos)
+    {
+        try {
+            $db = Conexion::getConnect();
+            $db->beginTransaction();
+            
+            $asignacion = new AsignacionModel(
+                $asigId,
+                $datos['instructor_id'],
+                $datos['fecha_inicio'],
+                $datos['fecha_fin'],
+                $datos['ficha_id'],
+                $datos['ambiente_id'],
+                $datos['competencia_id'] ?? null
+            );
+            
+            $asignacion->update();
+            
+            $db->commit();
+            
+            return [
+                'success' => true,
+                'message' => 'Asignación actualizada exitosamente'
+            ];
+            
+        } catch (Exception $e) {
+            if (isset($db)) {
+                $db->rollBack();
+            }
+            error_log("Error en actualizarAsignacion: " . $e->getMessage());
+            return [
+                'success' => false,
+                'message' => 'Error al actualizar la asignación: ' . $e->getMessage()
+            ];
+        }
+    }
+    
+    /**
      * Eliminar una asignación
      */
     public static function eliminarAsignacion($asigId)
@@ -99,8 +141,8 @@ class AsignacionController
             $db = Conexion::getConnect();
             $db->beginTransaction();
             
-            // Eliminar detalles primero
-            $sqlDetalle = "DELETE FROM detallexasgnacion WHERE ASIGNACION_asig_id = :asig_id";
+            // Eliminar detalles primero (para evitar violación de foreign key)
+            $sqlDetalle = "DELETE FROM detalle_asignacion WHERE asignacion_asig_id = :asig_id";
             $stmtDetalle = $db->prepare($sqlDetalle);
             $stmtDetalle->execute([':asig_id' => $asigId]);
             
@@ -122,7 +164,7 @@ class AsignacionController
             error_log("Error en eliminarAsignacion: " . $e->getMessage());
             return [
                 'success' => false,
-                'message' => 'Error al eliminar la asignación'
+                'message' => 'Error al eliminar la asignación: ' . $e->getMessage()
             ];
         }
     }
