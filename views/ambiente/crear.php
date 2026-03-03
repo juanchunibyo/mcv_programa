@@ -7,7 +7,7 @@ require_once __DIR__ . '/../../controllers/SedeController.php';
 
 session_start();
 
-$rol = $rol ?? 'coordinador';
+$rol = $_SESSION['usuario_rol'] ?? 'Invitado';
 $errores = $errores ?? [];
 $old = $old ?? [];
 

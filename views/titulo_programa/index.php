@@ -9,15 +9,18 @@
  *   $error    — (Opcional) Mensaje de error
  */
 
+session_start();
+
 // --- Datos de prueba ---
-$rol = $rol ?? 'coordinador';
+$rol = $_SESSION['usuario_rol'] ?? 'Invitado';
 $titulos = $titulos ?? [
     ['tibro_id' => 1, 'tibro_nombre' => 'Tecnólogo'],
     ['tibro_id' => 2, 'tibro_nombre' => 'Técnico'],
     ['tibro_id' => 3, 'tibro_nombre' => 'Especialización Tecnológica'],
 ];
-$mensaje = $mensaje ?? null;
-$error = $error ?? null;
+$mensaje = $_SESSION['mensaje'] ?? null;
+$error = $_SESSION['error'] ?? null;
+unset($_SESSION['mensaje'], $_SESSION['error']);
 // --- Fin datos de prueba ---
 
 $title = 'Gestión de Títulos';
@@ -32,7 +35,7 @@ include __DIR__ . '/../layout/header.php';
         <!-- Page Header -->
         <div class="page-header">
             <h1 class="page-title">Títulos de Programa</h1>
-            <?php if ($rol === 'coordinador'): ?>
+            <?php if (in_array($rol, ['coordinador', 'admin', 'centro de formacion'])): ?>
                 <a href="crear.php" class="btn btn-primary">
                     <i data-lucide="plus"></i>
                     Registrar Título
@@ -80,7 +83,7 @@ endif; ?>
                                     <a href="ver.php?id=<?php echo $titulo['tibro_id']; ?>" class="action-btn view-btn" title="Ver detalle">
                                         <i data-lucide="eye"></i>
                                     </a>
-                                    <?php if ($rol === 'coordinador'): ?>
+                                    <?php if (in_array($rol, ['coordinador', 'admin', 'centro de formacion'])): ?>
                                         <a href="editar.php?id=<?php echo $titulo['tibro_id']; ?>" class="action-btn edit-btn" title="Editar título">
                                             <i data-lucide="pencil-line"></i>
                                         </a>
@@ -105,7 +108,7 @@ else: ?>
                     </div>
                     <div class="table-empty-title">No hay títulos registrados</div>
                     <div class="table-empty-text">
-                        <?php if ($rol === 'coordinador'): ?>
+                        <?php if (in_array($rol, ['coordinador', 'admin', 'centro de formacion'])): ?>
                             Haz clic en "Registrar Título" para agregar el primero.
                         <?php
     else: ?>
@@ -119,7 +122,7 @@ endif; ?>
         </div>
 
 <!-- Delete Confirmation Modal -->
-<?php if ($rol === 'coordinador'): ?>
+<?php if (in_array($rol, ['coordinador', 'admin', 'centro de formacion'])): ?>
 <div class="modal-overlay" id="deleteModal">
     <div class="modal">
         <div class="modal-body">

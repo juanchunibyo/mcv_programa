@@ -1,35 +1,35 @@
 <?php
 /**
- * Vista: Listado de Detalles de Asignación (index.php)
+ * Vista: Listado de Centros de Formación (index.php)
  */
 
-require_once __DIR__ . '/../../controllers/DetalleAsignacionController.php';
+require_once __DIR__ . '/../../controllers/CentroFormacionController.php';
 
 session_start();
 
 // Obtener datos reales de la base de datos
-$rol = $rol ?? 'coordinador';
-$detalles = DetalleAsignacionController::obtenerTodosDetalles();
-
+$rol = $_SESSION['usuario_rol'] ?? 'Invitado';
+$centros_formacion = CentroFormacionController::obtenerTodosCentros();
 $mensaje = $_SESSION['mensaje'] ?? null;
 $error = $_SESSION['error'] ?? null;
 unset($_SESSION['mensaje'], $_SESSION['error']);
 
-$title = 'Detalles de Asignación';
+$title = 'Gestión de Centros de Formación';
 $breadcrumb = [
     ['label' => 'Inicio', 'url' => '/mvccc/mvc_programa/'],
-    ['label' => 'Detalles de Asignación'],
+    ['label' => 'Centros de Formación'],
 ];
 
 include __DIR__ . '/../layout/header.php';
 ?>
 
+        <!-- Page Header -->
         <div class="page-header">
-            <h1 class="page-title">Detalles de Horario</h1>
-            <?php if ($rol === 'coordinador'): ?>
+            <h1 class="page-title">Gestión de Centros de Formación</h1>
+            <?php if (in_array($rol, ['coordinador', 'admin', 'centro de formacion'])): ?>
                 <a href="crear.php" class="btn btn-primary">
                     <i data-lucide="plus"></i>
-                    Agregar Horario
+                    Registrar Centro de Formación
                 </a>
             <?php
 endif; ?>
@@ -52,36 +52,33 @@ endif; ?>
         <?php
 endif; ?>
 
+        <!-- Data Table -->
         <div class="table-container">
-            <?php if (!empty($detalles)): ?>
+            <?php if (!empty($centros_formacion)): ?>
             <div class="table-scroll">
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>ID Detalle</th>
-                            <th>ID Asignación</th>
-                            <th>Hora Inicio</th>
-                            <th>Hora Fin</th>
+                            <th>ID</th>
+                            <th>Nombre de el Centro de Formación</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($detalles as $det): ?>
+                        <?php foreach ($centros_formacion as $centro): ?>
                         <tr>
-                            <td><span class="table-id"><?php echo htmlspecialchars($det['detasig_id']); ?></span></td>
-                            <td><?php echo htmlspecialchars($det['asignacion_asig_id']); ?></td>
-                            <td><?php echo htmlspecialchars(date('H:i', strtotime($det['detasig_hora_ini']))); ?></td>
-                            <td><?php echo htmlspecialchars(date('H:i', strtotime($det['detasig_hora_fin']))); ?></td>
+                            <td><span class="table-id"><?php echo htmlspecialchars($centro['cent_id']); ?></span></td>
+                            <td><?php echo htmlspecialchars($centro['cent_nombre']); ?></td>
                             <td>
                                 <div class="table-actions">
-                                    <a href="ver.php?id=<?php echo $det['detasig_id']; ?>" class="action-btn view-btn" title="Ver detalle">
+                                    <a href="ver.php?id=<?php echo $centro['cent_id']; ?>" class="action-btn view-btn" title="Ver detalle">
                                         <i data-lucide="eye"></i>
                                     </a>
-                                    <?php if ($rol === 'coordinador'): ?>
-                                        <a href="editar.php?id=<?php echo $det['detasig_id']; ?>" class="action-btn edit-btn" title="Editar horario">
+                                    <?php if (in_array($rol, ['coordinador', 'admin', 'centro de formacion'])): ?>
+                                        <a href="editar.php?id=<?php echo $centro['cent_id']; ?>" class="action-btn edit-btn" title="Editar centro_formacion">
                                             <i data-lucide="pencil-line"></i>
                                         </a>
-                                        <button type="button" class="action-btn delete-btn" title="Eliminar horario" onclick="confirmDelete(<?php echo $det['detasig_id']; ?>)">
+                                        <button type="button" class="action-btn delete-btn" title="Eliminar centro_formacion" onclick="confirmDelete(<?php echo $centro['cent_id']; ?>, '<?php echo htmlspecialchars(addslashes($centro['cent_nombre']), ENT_QUOTES); ?>')">
                                             <i data-lucide="trash-2"></i>
                                         </button>
                                     <?php
@@ -98,25 +95,36 @@ endif; ?>
 else: ?>
                 <div class="table-empty">
                     <div class="table-empty-icon">
-                        <i data-lucide="clock"></i>
+                        <i data-lucide="building-2"></i>
                     </div>
-                    <div class="table-empty-title">No hay detalles registrados</div>
+                    <div class="table-empty-title">No hay centros de formación registradas</div>
+                    <div class="table-empty-text">
+                        <?php if (in_array($rol, ['coordinador', 'admin', 'centro de formacion'])): ?>
+                            Haz clic en "Registrar Centro de Formación" para agregar la primera centro_formacion.
+                        <?php
+    else: ?>
+                            No se encontraron centros de formación en el sistema.
+                        <?php
+    endif; ?>
+                    </div>
                 </div>
             <?php
 endif; ?>
         </div>
 
 <!-- Delete Confirmation Modal -->
-<?php if ($rol === 'coordinador'): ?>
+<?php if (in_array($rol, ['coordinador', 'admin', 'centro de formacion'])): ?>
 <div class="modal-overlay" id="deleteModal">
     <div class="modal">
         <div class="modal-body">
             <div class="modal-icon">
                 <i data-lucide="alert-triangle"></i>
             </div>
-            <h3 class="modal-title">Eliminar Horario</h3>
+            <h3 class="modal-title">Eliminar Centro de Formación</h3>
             <p class="modal-text">
-                ¿Estás seguro de que deseas eliminar este horario?
+                ¿Estás seguro de que deseas eliminar el centro de formación
+                <strong id="deleteModalName"></strong>?
+                Esta acción no se puede deshacer.
             </p>
         </div>
         <div class="modal-actions">
@@ -124,7 +132,7 @@ endif; ?>
                 Cancelar
             </button>
             <form id="deleteForm" method="POST" action="procesar.php" style="flex:1;">
-                <input type="hidden" name="detasig_id" id="deleteModalId">
+                <input type="hidden" name="cent_id" id="deleteModalId">
                 <input type="hidden" name="action" value="delete">
                 <button type="submit" class="btn btn-danger" style="width:100%;justify-content:center;">
                     <i data-lucide="trash-2"></i>
@@ -136,8 +144,9 @@ endif; ?>
 </div>
 
 <script>
-    function confirmDelete(id) {
+    function confirmDelete(id, nombre) {
         document.getElementById('deleteModalId').value = id;
+        document.getElementById('deleteModalName').textContent = nombre;
         document.getElementById('deleteModal').classList.add('active');
     }
 
@@ -145,10 +154,12 @@ endif; ?>
         document.getElementById('deleteModal').classList.remove('active');
     }
 
+    // Close modal on overlay click
     document.getElementById('deleteModal').addEventListener('click', function(e) {
         if (e.target === this) closeDeleteModal();
     });
 
+    // Close modal on Escape key
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') closeDeleteModal();
     });

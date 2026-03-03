@@ -10,7 +10,7 @@
 
 session_start();
 
-$rol = 'coordinador';
+$rol = $_SESSION['usuario_rol'] ?? 'Invitado';
 $errores = [];
 $old = [];
 

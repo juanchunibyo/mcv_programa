@@ -41,6 +41,21 @@ class InstructorController
     }
     
     /**
+     * Obtener instructores vinculados a una ficha
+     */
+    public static function obtenerInstructoresPorFicha($ficha_id)
+    {
+        try {
+            $instructor = new InstructorModel(null, '', '', '', '', null);
+            return $instructor->readInstructoresPorFicha($ficha_id);
+            
+        } catch (Exception $e) {
+            error_log("Error en obtenerInstructoresPorFicha: " . $e->getMessage());
+            return [];
+        }
+    }
+    
+    /**
      * Crear un nuevo instructor
      */
     public static function crearInstructor($datos)
@@ -121,7 +136,7 @@ class InstructorController
             error_log("Error en eliminarInstructor: " . $e->getMessage());
             return [
                 'success' => false,
-                'message' => 'Error al eliminar el instructor'
+                'message' => $e->getMessage()
             ];
         }
     }

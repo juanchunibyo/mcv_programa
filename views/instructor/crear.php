@@ -2,9 +2,7 @@
 require_once __DIR__ . '/../../Conexion.php';
 session_start();
 
-$rol = $rol ?? 'coordinador';
-$db = Conexion::getConnect();
-$centros = $db->query("SELECT cent_id, cent_nombre FROM centro_formacion ORDER BY cent_nombre")->fetchAll(PDO::FETCH_ASSOC);
+$rol = $_SESSION['usuario_rol'] ?? 'Invitado';
 
 $title = 'Registrar Instructor';
 $breadcrumb = [
@@ -42,15 +40,7 @@ include __DIR__ . '/../layout/header.php';
                 <input type="tel" name="inst_telefono" class="form-input">
             </div>
             
-            <div class="form-group">
-                <label class="form-label">Centro de Formación</label>
-                <select name="centro_formacion_id" class="form-input">
-                    <option value="">Seleccione (opcional)</option>
-                    <?php foreach ($centros as $c): ?>
-                        <option value="<?= $c['cent_id'] ?>"><?= htmlspecialchars($c['cent_nombre']) ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
+
             
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary"><i data-lucide="save"></i> Guardar</button>

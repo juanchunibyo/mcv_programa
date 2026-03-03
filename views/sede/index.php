@@ -8,7 +8,7 @@ require_once __DIR__ . '/../../controllers/SedeController.php';
 session_start();
 
 // Obtener datos reales de la base de datos
-$rol = $rol ?? 'coordinador';
+$rol = $_SESSION['usuario_rol'] ?? 'Invitado';
 $sedes = SedeController::obtenerTodasSedes();
 $mensaje = $_SESSION['mensaje'] ?? null;
 $error = $_SESSION['error'] ?? null;
@@ -26,7 +26,7 @@ include __DIR__ . '/../layout/header.php';
         <!-- Page Header -->
         <div class="page-header">
             <h1 class="page-title">Gestión de Sedes</h1>
-            <?php if ($rol === 'coordinador'): ?>
+            <?php if (in_array($rol, ['coordinador', 'admin', 'centro de formacion'])): ?>
                 <a href="crear.php" class="btn btn-primary">
                     <i data-lucide="plus"></i>
                     Registrar Sede
@@ -74,7 +74,7 @@ endif; ?>
                                     <a href="ver.php?id=<?php echo $sede['sede_id']; ?>" class="action-btn view-btn" title="Ver detalle">
                                         <i data-lucide="eye"></i>
                                     </a>
-                                    <?php if ($rol === 'coordinador'): ?>
+                                    <?php if (in_array($rol, ['coordinador', 'admin', 'centro de formacion'])): ?>
                                         <a href="editar.php?id=<?php echo $sede['sede_id']; ?>" class="action-btn edit-btn" title="Editar sede">
                                             <i data-lucide="pencil-line"></i>
                                         </a>
@@ -99,7 +99,7 @@ else: ?>
                     </div>
                     <div class="table-empty-title">No hay sedes registradas</div>
                     <div class="table-empty-text">
-                        <?php if ($rol === 'coordinador'): ?>
+                        <?php if (in_array($rol, ['coordinador', 'admin', 'centro de formacion'])): ?>
                             Haz clic en "Registrar Sede" para agregar la primera sede.
                         <?php
     else: ?>
@@ -113,7 +113,7 @@ endif; ?>
         </div>
 
 <!-- Delete Confirmation Modal -->
-<?php if ($rol === 'coordinador'): ?>
+<?php if (in_array($rol, ['coordinador', 'admin', 'centro de formacion'])): ?>
 <div class="modal-overlay" id="deleteModal">
     <div class="modal">
         <div class="modal-body">

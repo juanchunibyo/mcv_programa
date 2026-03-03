@@ -25,7 +25,7 @@ switch ($action) {
             exit;
         }
         
-        if ($datos['centro_formacion_id'] === 0) $datos['centro_formacion_id'] = null;
+        if ($datos['centro_formacion_id'] === 0) $datos['centro_formacion_id'] = 1;
         
         $resultado = InstructorController::crearInstructor($datos);
         $_SESSION[$resultado['success'] ? 'mensaje' : 'error'] = $resultado['message'];
@@ -48,7 +48,7 @@ switch ($action) {
             exit;
         }
         
-        if ($datos['centro_formacion_id'] === 0) $datos['centro_formacion_id'] = null;
+        if ($datos['centro_formacion_id'] === 0) $datos['centro_formacion_id'] = 1;
         
         $resultado = InstructorController::actualizarInstructor($instId, $datos);
         $_SESSION[$resultado['success'] ? 'mensaje' : 'error'] = $resultado['message'];

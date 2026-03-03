@@ -22,11 +22,14 @@ switch ($action) {
             'fecha_fin' => trim($_POST['asig_fecha_fin'] ?? ''),
             'ficha_id' => intval($_POST['FICHA_fich_id'] ?? 0),
             'ambiente_id' => intval($_POST['AMBIENTE_id_ambiente'] ?? 0),
-            'competencia_id' => intval($_POST['COMPETENCIA_comp_id'] ?? 0)
+            'competencia_id' => intval($_POST['COMPETENCIA_comp_id'] ?? 0),
+            'hora_inicio' => trim($_POST['detasig_hora_ini'] ?? ''),
+            'hora_fin' => trim($_POST['detasig_hora_fin'] ?? '')
         ];
         
         if ($datos['instructor_id'] <= 0 || $datos['ficha_id'] <= 0 || $datos['ambiente_id'] <= 0) {
             $_SESSION['error'] = 'Debe completar todos los campos obligatorios';
+            $_SESSION['form_data'] = $_POST;
             header('Location: crear.php');
             exit;
         }
@@ -39,20 +42,7 @@ switch ($action) {
             $datos['fecha_fin'] = $datos['fecha_fin'] . ' 23:59:59';
         }
         
-        // Verificar conflictos de horario en el mismo ambiente
-        $asignaciones = AsignacionController::obtenerTodasAsignaciones();
-        foreach ($asignaciones as $asig) {
-            if ($asig['ambiente_amb_id'] == $datos['ambiente_id']) {
-                // Verificar si hay solapamiento de fechas
-                if (($datos['fecha_inicio'] >= $asig['asig_fecha_ini'] && $datos['fecha_inicio'] <= $asig['asig_fecha_fin']) ||
-                    ($datos['fecha_fin'] >= $asig['asig_fecha_ini'] && $datos['fecha_fin'] <= $asig['asig_fecha_fin']) ||
-                    ($datos['fecha_inicio'] <= $asig['asig_fecha_ini'] && $datos['fecha_fin'] >= $asig['asig_fecha_fin'])) {
-                    $_SESSION['error'] = 'El ambiente ya está asignado en ese rango de fechas';
-                    header('Location: crear.php');
-                    exit;
-                }
-            }
-        }
+        // La validación de conflictos se realiza en el Controller mediante AsignacionModel::verificarConflicto
         
         $resultado = AsignacionController::crearAsignacion($datos);
         
@@ -61,6 +51,7 @@ switch ($action) {
             header('Location: index.php');
         } else {
             $_SESSION['error'] = $resultado['message'];
+            $_SESSION['form_data'] = $_POST;
             header('Location: crear.php');
         }
         break;
@@ -73,12 +64,19 @@ switch ($action) {
             'fecha_fin' => trim($_POST['asig_fecha_fin'] ?? ''),
             'ficha_id' => intval($_POST['FICHA_fich_id'] ?? 0),
             'ambiente_id' => intval($_POST['AMBIENTE_id_ambiente'] ?? 0),
-            'competencia_id' => intval($_POST['COMPETENCIA_comp_id'] ?? 0)
+            'competencia_id' => intval($_POST['COMPETENCIA_comp_id'] ?? 0),
+            'hora_inicio' => trim($_POST['detasig_hora_ini'] ?? ''),
+            'hora_fin' => trim($_POST['detasig_hora_fin'] ?? '')
         ];
         
         if ($asigId <= 0 || $datos['instructor_id'] <= 0 || $datos['ficha_id'] <= 0 || $datos['ambiente_id'] <= 0) {
             $_SESSION['error'] = 'Datos inválidos';
-            header('Location: index.php');
+            if ($asigId > 0) {
+                $_SESSION['form_data'] = $_POST;
+                header('Location: editar.php?id=' . $asigId);
+            } else {
+                header('Location: index.php');
+            }
             exit;
         }
         
@@ -94,11 +92,12 @@ switch ($action) {
         
         if ($resultado['success']) {
             $_SESSION['mensaje'] = $resultado['message'];
+            header('Location: index.php');
         } else {
             $_SESSION['error'] = $resultado['message'];
+            $_SESSION['form_data'] = $_POST;
+            header('Location: editar.php?id=' . $asigId);
         }
-        
-        header('Location: index.php');
         break;
         
     case 'delete':

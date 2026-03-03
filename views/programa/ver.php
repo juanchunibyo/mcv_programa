@@ -3,7 +3,7 @@
  * Vista: Detalle de Programa (ver.php)
  */
 
-$rol = $rol ?? 'coordinador';
+$rol = $_SESSION['usuario_rol'] ?? 'Invitado';
 
 // Obtener ID del programa desde la URL
 $progId = $_GET['id'] ?? 1;
@@ -132,7 +132,7 @@ include __DIR__ . '/../layout/header.php';
                 <i data-lucide="arrow-left"></i>
                 Volver
             </a>
-            <?php if ($rol === 'coordinador'): ?>
+            <?php if (in_array($rol, ['coordinador', 'admin', 'centro de formacion'])): ?>
                 <a href="editar.php?id=<?= $programa['prog_codigo'] ?>" class="btn btn-primary">
                     <i data-lucide="pencil"></i>
                     Editar

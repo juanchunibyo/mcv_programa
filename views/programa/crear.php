@@ -3,7 +3,7 @@ require_once __DIR__ . '/../../Conexion.php';
 require_once __DIR__ . '/../../controllers/SedeController.php';
 session_start();
 
-$rol = $rol ?? 'coordinador';
+$rol = $_SESSION['usuario_rol'] ?? 'Invitado';
 $db = Conexion::getConnect();
 $titulos = $db->query("SELECT titpro_id, titpro_nombre FROM titulo_programa ORDER BY titpro_nombre")->fetchAll(PDO::FETCH_ASSOC);
 $sedes = SedeController::obtenerTodasSedes();

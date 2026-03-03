@@ -7,7 +7,7 @@ require_once __DIR__ . '/../../controllers/FichaController.php';
 
 session_start();
 
-$rol = $rol ?? 'coordinador';
+$rol = $_SESSION['usuario_rol'] ?? 'Invitado';
 
 // Obtener ID de la ficha desde la URL
 $fichId = intval($_GET['id'] ?? 0);
@@ -132,7 +132,7 @@ include __DIR__ . '/../layout/header.php';
                 <i data-lucide="arrow-left"></i>
                 Volver
             </a>
-            <?php if ($rol === 'coordinador'): ?>
+            <?php if (in_array($rol, ['coordinador', 'admin'])): ?>
                 <a href="editar.php?id=<?= $ficha['fich_id'] ?>" class="btn btn-primary">
                     <i data-lucide="pencil"></i>
                     Editar

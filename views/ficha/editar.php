@@ -10,7 +10,7 @@ require_once __DIR__ . '/../../controllers/InstructorController.php';
 
 session_start();
 
-$rol = $rol ?? 'coordinador';
+$rol = $_SESSION['usuario_rol'] ?? 'Invitado';
 $errores = [];
 
 // Obtener ID de la ficha desde la URL

@@ -3,7 +3,7 @@
  * Vista: Detalle de Instructor (ver.php)
  */
 
-$rol = $rol ?? 'coordinador';
+$rol = $_SESSION['usuario_rol'] ?? 'Invitado';
 
 // Obtener ID del instructor desde la URL
 $instId = $_GET['id'] ?? 1;
@@ -141,7 +141,7 @@ include __DIR__ . '/../layout/header.php';
                 <i data-lucide="arrow-left"></i>
                 Volver
             </a>
-            <?php if ($rol === 'coordinador'): ?>
+            <?php if (in_array($rol, ['coordinador', 'admin', 'centro de formacion'])): ?>
                 <a href="editar.php?id=<?= $instructor['inst_id'] ?>" class="btn btn-primary">
                     <i data-lucide="pencil"></i>
                     Editar

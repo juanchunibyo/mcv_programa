@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../../controllers/InstructorController.php';
 session_start();
 
-$rol = $rol ?? 'coordinador';
+$rol = $_SESSION['usuario_rol'] ?? 'Invitado';
 $instructores = InstructorController::obtenerTodosInstructores();
 $mensaje = $_SESSION['mensaje'] ?? null;
 $error = $_SESSION['error'] ?? null;
@@ -18,7 +18,7 @@ include __DIR__ . '/../layout/header.php';
 
 <div class="page-header">
     <h1 class="page-title">Instructores</h1>
-    <?php if ($rol === 'coordinador'): ?>
+    <?php if (in_array($rol, ['coordinador', 'admin', 'centro de formacion'])): ?>
         <a href="crear.php" class="btn btn-primary"><i data-lucide="plus"></i> Registrar Instructor</a>
     <?php endif; ?>
 </div>
@@ -54,7 +54,7 @@ include __DIR__ . '/../layout/header.php';
                 <td>
                     <div class="table-actions">
                         <a href="ver.php?id=<?= $inst['inst_id'] ?>" class="action-btn view-btn" title="Ver"><i data-lucide="eye"></i></a>
-                        <?php if ($rol === 'coordinador'): ?>
+                        <?php if (in_array($rol, ['coordinador', 'admin', 'centro de formacion'])): ?>
                             <a href="editar.php?id=<?= $inst['inst_id'] ?>" class="action-btn edit-btn" title="Editar"><i data-lucide="pencil-line"></i></a>
                             <button type="button" class="action-btn delete-btn" title="Eliminar" onclick="confirmDelete(<?= $inst['inst_id'] ?>, '<?= htmlspecialchars(addslashes($inst['inst_nombres'] . ' ' . $inst['inst_apellidos']), ENT_QUOTES) ?>')"><i data-lucide="trash-2"></i></button>
                         <?php endif; ?>
@@ -72,7 +72,7 @@ include __DIR__ . '/../layout/header.php';
     <?php endif; ?>
 </div>
 
-<?php if ($rol === 'coordinador'): ?>
+<?php if (in_array($rol, ['coordinador', 'admin', 'centro de formacion'])): ?>
 <div class="modal-overlay" id="deleteModal">
     <div class="modal">
         <div class="modal-body">

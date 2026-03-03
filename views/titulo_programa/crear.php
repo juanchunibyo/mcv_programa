@@ -4,7 +4,7 @@
  */
 
 // --- Datos de prueba ---
-$rol = $rol ?? 'coordinador';
+$rol = $_SESSION['usuario_rol'] ?? 'Invitado';
 $errores = $errores ?? [];
 $old = $old ?? [];
 // --- Fin datos de prueba ---

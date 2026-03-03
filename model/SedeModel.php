@@ -69,6 +69,8 @@ class SedeModel
     public function delete()
     {
         try {
+            $this->db->beginTransaction();
+
             // Primero eliminar ambientes asociados
             $queryAmbientes = "DELETE FROM ambiente WHERE sede_sede_id = :sede_id";
             $stmtAmbientes = $this->db->prepare($queryAmbientes);
@@ -86,8 +88,23 @@ class SedeModel
             $stmt = $this->db->prepare($query);
             $stmt->bindParam(':sede_id', $this->sede_id);
             $stmt->execute();
+            
+            $this->db->commit();
             return $stmt;
+
+        } catch (PDOException $e) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            // Código 23503: Violación de Restricción de Llave Foránea de PostgreSQL
+            if ($e->getCode() == '23503') {
+                throw new Exception("PROTECCIÓN DE DATOS: No puedes eliminar esta Sede porque sus Salones/Ambientes ya están reservados en clases del Calendario. Elimina las asignaciones primero.");
+            }
+            throw new Exception("Error interno SQL: " . $e->getMessage());
         } catch (Exception $e) {
+            if (isset($this->db) && $this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
             throw $e;
         }
     }

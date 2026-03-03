@@ -10,9 +10,11 @@ require_once __DIR__ . '/../../controllers/CompetenciaController.php';
 
 session_start();
 
-$rol = $rol ?? 'coordinador';
+$rol = $_SESSION['usuario_rol'] ?? 'Invitado';
 $errores = [];
-$old = [];
+$old = $_SESSION['form_data'] ?? [];
+$error_global = $_SESSION['error'] ?? null;
+unset($_SESSION['form_data'], $_SESSION['error']);
 
 // Cargar datos desde la base de datos
 $fichas = FichaController::obtenerTodasFichas();
@@ -38,6 +40,13 @@ include __DIR__ . '/../layout/header.php';
             <div class="form-card">
                 <form id="formCrearAsig" method="POST" action="procesar.php" novalidate>
                     <input type="hidden" name="action" value="create">
+
+                    <?php if ($error_global): ?>
+                        <div class="alert alert-error" style="margin-bottom: 20px;">
+                            <i data-lucide="alert-circle"></i>
+                            <?php echo htmlspecialchars($error_global); ?>
+                        </div>
+                    <?php endif; ?>
 
                     <div class="form-grid">
                         <!-- Ficha -->
@@ -186,6 +195,43 @@ endforeach; ?>
                              <div class="form-error <?php echo isset($errores['asig_fecha_fin']) ? 'visible' : ''; ?>">
                                 <i data-lucide="alert-circle"></i>
                                 <span><?php echo htmlspecialchars($errores['asig_fecha_fin'] ?? 'Requerido.'); ?></span>
+                            </div>
+                        </div>
+
+                        <!-- Horas -->
+                        <div class="form-group">
+                            <label for="detasig_hora_ini" class="form-label">
+                                Hora Inicio <span class="required">*</span>
+                            </label>
+                            <input
+                                type="time"
+                                id="detasig_hora_ini"
+                                name="detasig_hora_ini"
+                                class="form-input <?php echo isset($errores['detasig_hora_ini']) ? 'input-error' : ''; ?>"
+                                value="<?php echo htmlspecialchars($old['detasig_hora_ini'] ?? ''); ?>"
+                                required
+                            >
+                            <div class="form-error <?php echo isset($errores['detasig_hora_ini']) ? 'visible' : ''; ?>">
+                                <i data-lucide="alert-circle"></i>
+                                <span><?php echo htmlspecialchars($errores['detasig_hora_ini'] ?? 'Requerido.'); ?></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="detasig_hora_fin" class="form-label">
+                                Hora Fin <span class="required">*</span>
+                            </label>
+                            <input
+                                type="time"
+                                id="detasig_hora_fin"
+                                name="detasig_hora_fin"
+                                class="form-input <?php echo isset($errores['detasig_hora_fin']) ? 'input-error' : ''; ?>"
+                                value="<?php echo htmlspecialchars($old['detasig_hora_fin'] ?? ''); ?>"
+                                required
+                            >
+                             <div class="form-error <?php echo isset($errores['detasig_hora_fin']) ? 'visible' : ''; ?>">
+                                <i data-lucide="alert-circle"></i>
+                                <span><?php echo htmlspecialchars($errores['detasig_hora_fin'] ?? 'Requerido.'); ?></span>
                             </div>
                         </div>
                     </div>

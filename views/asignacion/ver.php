@@ -7,7 +7,7 @@ require_once __DIR__ . '/../../controllers/AsignacionController.php';
 
 session_start();
 
-$rol = $rol ?? 'coordinador';
+$rol = $_SESSION['usuario_rol'] ?? 'Invitado';
 $asigId = intval($_GET['id'] ?? 0);
 
 if ($asigId <= 0) {
@@ -83,11 +83,27 @@ include __DIR__ . '/../layout/header.php';
                     </div>
                 </div>
                 
-                <div style="margin-top: 2rem;">
+                <div style="margin-top: 2rem; display: flex; gap: 1rem;">
                     <a href="index.php" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
                         <i data-lucide="arrow-left"></i>
                         Volver al Listado
                     </a>
+                    
+                    <?php if (in_array($rol, ['coordinador', 'admin', 'centro de formacion'])): ?>
+                    <a href="editar.php?id=<?php echo htmlspecialchars($asignacion['asig_id']); ?>" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 0.5rem; border-color: #3b82f6; color: #3b82f6;">
+                        <i data-lucide="pencil"></i>
+                        Editar
+                    </a>
+                    
+                    <form method="POST" action="procesar.php" style="display: inline-block;" onsubmit="return confirm('¿Está seguro de que desea eliminar esta asignación?');">
+                        <input type="hidden" name="action" value="delete">
+                        <input type="hidden" name="asig_id" value="<?php echo htmlspecialchars($asignacion['asig_id']); ?>">
+                        <button type="submit" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 0.5rem; background: #fee2e2; border-color: #f87171; color: #dc2626;">
+                            <i data-lucide="trash-2"></i>
+                            Eliminar
+                        </button>
+                    </form>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

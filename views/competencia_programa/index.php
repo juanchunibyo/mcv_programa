@@ -9,7 +9,7 @@ require_once __DIR__ . '/../../controllers/ProgramaController.php';
 session_start();
 
 // Obtener datos reales de la base de datos
-$rol = $rol ?? 'coordinador';
+$rol = $_SESSION['usuario_rol'] ?? 'Invitado';
 $relacionesDB = CompetenciaProgramaController::obtenerTodasRelaciones();
 
 // Enriquecer con nombres de programa
@@ -42,7 +42,7 @@ include __DIR__ . '/../layout/header.php';
 
         <div class="page-header">
             <h1 class="page-title">Competencias por Programa</h1>
-            <?php if ($rol === 'coordinador'): ?>
+            <?php if (in_array($rol, ['coordinador', 'admin'])): ?>
                 <a href="crear.php" class="btn btn-primary">
                     <i data-lucide="link"></i>
                     Asociar Competencia
@@ -91,7 +91,7 @@ endif; ?>
                             </td>
                             <td>
                                 <div class="table-actions">
-                                    <?php if ($rol === 'coordinador'): ?>
+                                    <?php if (in_array($rol, ['coordinador', 'admin'])): ?>
                                         <button type="button" class="action-btn delete-btn" title="Desvincular" 
                                             onclick="confirmDelete(<?php echo $rel['prog_id']; ?>, <?php echo $rel['comp_id']; ?>)">
                                             <i data-lucide="unlink"></i>
@@ -119,7 +119,7 @@ endif; ?>
         </div>
 
 <!-- Delete Confirmation Modal -->
-<?php if ($rol === 'coordinador'): ?>
+<?php if (in_array($rol, ['coordinador', 'admin'])): ?>
 <div class="modal-overlay" id="deleteModal">
     <div class="modal">
         <div class="modal-body">

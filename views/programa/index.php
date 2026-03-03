@@ -8,7 +8,7 @@ require_once __DIR__ . '/../../controllers/ProgramaController.php';
 session_start();
 
 // Obtener datos reales de la base de datos
-$rol = $rol ?? 'coordinador';
+$rol = $_SESSION['usuario_rol'] ?? 'Invitado';
 $programas = ProgramaController::obtenerTodosProgramas();
 $mensaje = $_SESSION['mensaje'] ?? null;
 $error = $_SESSION['error'] ?? null;
@@ -28,7 +28,7 @@ include __DIR__ . '/../layout/header.php';
                 <h1 class="page-title">Programas</h1>
                 <p class="page-subtitle">Gestiona los programas de formación académica</p>
             </div>
-            <?php if ($rol === 'coordinador'): ?>
+            <?php if (in_array($rol, ['coordinador', 'admin', 'centro de formacion'])): ?>
                 <a href="crear.php" class="btn btn-primary">
                     <i data-lucide="plus"></i>
                     Nuevo Programa
@@ -108,7 +108,7 @@ include __DIR__ . '/../layout/header.php';
                                     <a href="ver.php?id=<?php echo $prog['prog_id']; ?>" class="action-btn view-btn" title="Ver detalle">
                                         <i data-lucide="eye"></i>
                                     </a>
-                                    <?php if ($rol === 'coordinador'): ?>
+                                    <?php if (in_array($rol, ['coordinador', 'admin', 'centro de formacion'])): ?>
                                         <a href="editar.php?id=<?php echo $prog['prog_id']; ?>" class="action-btn edit-btn" title="Editar">
                                             <i data-lucide="pencil-line"></i>
                                         </a>
@@ -130,7 +130,7 @@ include __DIR__ . '/../layout/header.php';
                     </div>
                     <div class="table-empty-title">No hay programas registrados</div>
                     <div class="table-empty-text">
-                        <?php if ($rol === 'coordinador'): ?>
+                        <?php if (in_array($rol, ['coordinador', 'admin', 'centro de formacion'])): ?>
                             Haz clic en "Nuevo Programa" para agregar el primero.
                         <?php else: ?>
                             No se encontraron programas en el sistema.
@@ -166,7 +166,7 @@ function filterTable() {
 </script>
 
 <!-- Delete Confirmation Modal -->
-<?php if ($rol === 'coordinador'): ?>
+<?php if (in_array($rol, ['coordinador', 'admin', 'centro de formacion'])): ?>
 <div class="modal-overlay" id="deleteModal">
     <div class="modal">
         <div class="modal-body">

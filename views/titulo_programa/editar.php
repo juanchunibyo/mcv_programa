@@ -4,7 +4,7 @@
  */
 
 // --- Datos de prueba ---
-$rol = $rol ?? 'coordinador';
+$rol = $_SESSION['usuario_rol'] ?? 'Invitado';
 $titulo = $titulo ?? ['tibro_id' => 1, 'tibro_nombre' => 'Tecnólogo'];
 $errores = $errores ?? [];
 // --- Fin datos de prueba ---

@@ -4,7 +4,7 @@
  */
 
 // --- Datos de prueba ---
-$rol = $rol ?? 'coordinador';
+$rol = $_SESSION['usuario_rol'] ?? 'Invitado';
 $ambiente = $ambiente ?? ['id_ambiente' => 1, 'amb_nombre' => 'Laboratorio de Software 1', 'sede_nombre' => 'Centro de Gestión Industrial'];
 // --- Fin datos de prueba ---
 

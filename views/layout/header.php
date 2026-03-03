@@ -10,7 +10,7 @@
 
 $title = $title ?? 'Panel Académico';
 $breadcrumb = $breadcrumb ?? [];
-$rol = $rol ?? 'instructor';
+$rol = $_SESSION['usuario_rol'] ?? 'Invitado';
 
 // Detectar la sección actual para aplicar fondos específicos
 $currentSection = '';
@@ -58,73 +58,78 @@ if (strpos($requestUri, '/sede/') !== false) {
 
         <nav class="sidebar-nav">
             <div class="sidebar-section-title">Principal</div>
-            <a href="/mvccc/mvc_programa/" class="sidebar-link">
+            <a href="/mvccc/mvc_programa/" class="sidebar-link <?php echo(strpos($_SERVER['REQUEST_URI'] ?? '', 'index.php') !== false || $_SERVER['REQUEST_URI'] === '/mvccc/mvc_programa/') ? 'active' : ''; ?>">
                 <i data-lucide="layout-dashboard"></i>
                 Inicio
             </a>
-            <a href="/mvccc/mvc_programa/views/calendario/index.php" class="sidebar-link <?php echo(strpos($_SERVER['REQUEST_URI'] ?? '', '/calendario/') !== false) ? 'active' : ''; ?>">
-                <i data-lucide="calendar"></i>
-                Calendario
-            </a>
 
             <div class="sidebar-section-title">Módulos</div>
-            <a href="/mvccc/mvc_programa/views/sede/index.php" class="sidebar-link <?php echo(strpos($_SERVER['REQUEST_URI'] ?? '', '/sede/') !== false) ? 'active' : ''; ?>">
-                <i data-lucide="building-2"></i>
-                Sedes
-            </a>
-            <a href="/mvccc/mvc_programa/views/ambiente/index.php" class="sidebar-link <?php echo(strpos($_SERVER['REQUEST_URI'] ?? '', '/ambiente/') !== false) ? 'active' : ''; ?>">
-                <i data-lucide="monitor"></i>
-                Ambientes
-            </a>
-            <a href="/mvccc/mvc_programa/views/programa/index.php" class="sidebar-link <?php echo(strpos($_SERVER['REQUEST_URI'] ?? '', '/programa/') !== false) ? 'active' : ''; ?>">
-                <i data-lucide="graduation-cap"></i>
-                Programas
-            </a>
-            <a href="/mvccc/mvc_programa/views/ficha/index.php" class="sidebar-link <?php echo(strpos($_SERVER['REQUEST_URI'] ?? '', '/ficha/') !== false) ? 'active' : ''; ?>">
-                <i data-lucide="book-open"></i>
-                Fichas
-            </a>
-            <a href="/mvccc/mvc_programa/views/instructor/index.php" class="sidebar-link <?php echo(strpos($_SERVER['REQUEST_URI'] ?? '', '/instructor/') !== false) ? 'active' : ''; ?>">
-                <i data-lucide="users"></i>
-                Instructores
-            </a>
-            <a href="/mvccc/mvc_programa/views/asignacion/index.php" class="sidebar-link <?php echo(strpos($_SERVER['REQUEST_URI'] ?? '', '/asignacion/') !== false) ? 'active' : ''; ?>">
-                <i data-lucide="clipboard-list"></i>
-                Asignaciones
-            </a>
-            <a href="/mvccc/mvc_programa/views/detalle_asignacion/index.php" class="sidebar-link <?php echo(strpos($_SERVER['REQUEST_URI'] ?? '', '/detalle_asignacion/') !== false) ? 'active' : ''; ?>">
-                <i data-lucide="clock"></i>
-                Detalles Asign.
-            </a>
-            <a href="/mvccc/mvc_programa/views/competencia/index.php" class="sidebar-link <?php echo(strpos($_SERVER['REQUEST_URI'] ?? '', '/competencia/') !== false) ? 'active' : ''; ?>">
-                <i data-lucide="award"></i>
-                Competencias
-            </a>
-            <a href="/mvccc/mvc_programa/views/competencia_programa/index.php" class="sidebar-link <?php echo(strpos($_SERVER['REQUEST_URI'] ?? '', '/competencia_programa/') !== false) ? 'active' : ''; ?>">
-                <i data-lucide="link"></i>
-                Comp. x Prog.
-            </a>
-            <a href="/mvccc/mvc_programa/views/titulo_programa/index.php" class="sidebar-link <?php echo(strpos($_SERVER['REQUEST_URI'] ?? '', '/titulo_programa/') !== false) ? 'active' : ''; ?>">
-                <i data-lucide="scroll"></i>
-                Títulos
-            </a>
+
+            <?php if ($rol === 'centro de formacion' || $rol === 'admin'): ?>
+                <a href="/mvccc/mvc_programa/views/sede/index.php" class="sidebar-link <?php echo(strpos($_SERVER['REQUEST_URI'] ?? '', '/sede/') !== false) ? 'active' : ''; ?>">
+                    <i data-lucide="building-2"></i>
+                    Sedes
+                </a>
+                <a href="/mvccc/mvc_programa/views/ambiente/index.php" class="sidebar-link <?php echo(strpos($_SERVER['REQUEST_URI'] ?? '', '/ambiente/') !== false) ? 'active' : ''; ?>">
+                    <i data-lucide="monitor"></i>
+                    Ambientes
+                </a>
+                <a href="/mvccc/mvc_programa/views/programa/index.php" class="sidebar-link <?php echo(strpos($_SERVER['REQUEST_URI'] ?? '', '/programa/') !== false) ? 'active' : ''; ?>">
+                    <i data-lucide="graduation-cap"></i>
+                    Programas
+                </a>
+                <a href="/mvccc/mvc_programa/views/instructor/index.php" class="sidebar-link <?php echo(strpos($_SERVER['REQUEST_URI'] ?? '', '/instructor/') !== false) ? 'active' : ''; ?>">
+                    <i data-lucide="users"></i>
+                    Instructores
+                </a>
+                <a href="/mvccc/mvc_programa/views/competencia/index.php" class="sidebar-link <?php echo(strpos($_SERVER['REQUEST_URI'] ?? '', '/competencia/') !== false) ? 'active' : ''; ?>">
+                    <i data-lucide="award"></i>
+                    Competencias
+                </a>
+                <a href="/mvccc/mvc_programa/views/coordinacion/index.php" class="sidebar-link <?php echo(strpos($_SERVER['REQUEST_URI'] ?? '', '/coordinacion/') !== false) ? 'active' : ''; ?>">
+                    <i data-lucide="network"></i>
+                    Coordinaciones
+                </a>
+            <?php endif; ?>
+
+            <?php if ($rol === 'coordinador' || $rol === 'admin'): ?>
+                <a href="/mvccc/mvc_programa/views/ficha/index.php" class="sidebar-link <?php echo(strpos($_SERVER['REQUEST_URI'] ?? '', '/ficha/') !== false) ? 'active' : ''; ?>">
+                    <i data-lucide="book-open"></i>
+                    Fichas
+                </a>
+                <a href="/mvccc/mvc_programa/views/competencia_programa/index.php" class="sidebar-link <?php echo(strpos($_SERVER['REQUEST_URI'] ?? '', '/competencia_programa/') !== false) ? 'active' : ''; ?>">
+                    <i data-lucide="link"></i>
+                    Comp. x Prog.
+                </a>
+                <a href="/mvccc/mvc_programa/views/asignacion/index.php" class="sidebar-link <?php echo(strpos($_SERVER['REQUEST_URI'] ?? '', '/asignacion/') !== false) ? 'active' : ''; ?>">
+                    <i data-lucide="clipboard-list"></i>
+                    Asignación (Progr)
+                </a>
+            <?php endif; ?>
+
+            <?php if ($rol === 'instructor'): ?>
+                <a href="/mvccc/mvc_programa/views/asignacion/index.php" class="sidebar-link <?php echo(strpos($_SERVER['REQUEST_URI'] ?? '', '/asignacion/') !== false) ? 'active' : ''; ?>">
+                    <i data-lucide="clipboard-list"></i>
+                    Visualizar Asignación
+                </a>
+            <?php endif; ?>
         </nav>
 
         <div class="sidebar-footer">
             <div class="sidebar-user">
                 <div class="sidebar-user-avatar" style="background: none; padding: 0;">
-                    <img src="https://ui-avatars.com/api/?name=<?php echo urlencode($_SESSION['usuario_correo'] ?? 'Usuario'); ?>&background=39A900&color=fff&size=128" alt="Usuario" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                    <img src="https://ui-avatars.com/api/?name=<?php echo urlencode($_SESSION['usuario_nombre'] ?? 'Usuario'); ?>&background=39A900&color=fff&size=128" alt="Usuario" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
                 </div>
                 <div class="sidebar-user-info">
                     <div class="sidebar-user-name">
-                        <?php echo htmlspecialchars($_SESSION['usuario_correo'] ?? 'Usuario'); ?>
+                        <?php echo htmlspecialchars($_SESSION['usuario_nombre'] ?? 'Usuario'); ?>
                     </div>
                     <div class="sidebar-user-role">
-                        <?php echo($rol === 'coordinador') ? 'Coordinador Académico' : 'Instructor'; ?>
+                        <?php echo ucwords(htmlspecialchars($rol)); ?>
                     </div>
                 </div>
             </div>
-            <a href="/mvccc/mvc_programa/logout.php" class="sidebar-link" style="margin-top: 10px; color: #ff4444;">
+            <a href="/mvccc/mvc_programa/index.php?action=logout" class="sidebar-link" style="margin-top: 10px; color: #ff4444;">
                 <i data-lucide="log-out"></i>
                 Cerrar Sesión
             </a>
